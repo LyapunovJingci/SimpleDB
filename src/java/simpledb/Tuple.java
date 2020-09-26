@@ -101,17 +101,16 @@ public class Tuple implements Serializable {
 
     public String toString() {
         // Done
-        StringBuffer sb = new StringBuffer();
+        StringBuffer strBuffer = new StringBuffer();
         for (int i = 0; i < fields.length; i++){
             if(i == fields.length - 1){
-                sb.append(fields[i].toString());
+                strBuffer.append(fields[i].toString());
             }
             else{
-                sb.append(fields[i].toString());
-                sb.append("\t");
+                strBuffer.append(fields[i].toString()).append("\t");
             }
         }
-        return sb.toString();
+        return strBuffer.toString();
     }
 
     /**
@@ -125,13 +124,14 @@ public class Tuple implements Serializable {
         return new Iterator<Field>() {
 
             private int loc = -1;
-
+            @Override
             public boolean hasNext() {
-                return loc+1 < fields.length;
+                return loc + 1 < fields.length;
             }
 
+            @Override
             public Field next() {
-                if(hasNext()){
+                if (hasNext()) {
                     loc++;
                     return fields[loc];
                 }
@@ -146,7 +146,7 @@ public class Tuple implements Serializable {
      * */
     public void resetTupleDesc(TupleDesc td)
     {
-        // some code goes here
+        // Done
         tupleDesc = td;
         fields = new Field[td.numFields()];
     }

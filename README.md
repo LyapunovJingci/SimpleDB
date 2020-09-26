@@ -11,7 +11,7 @@ Implement the core modules required to access stored data on disk.
 3. Implement Buffer Pool  :heavy_check_mark:
 4. Implement Heap Page   :heavy_check_mark:
 5. Implement Heap File   :heavy_minus_sign:未通过
-6. Implement Operator (Seq Scan)   :heavy_minus_sign:未通过
+6. Implement Operator (Seq Scan)   :heavy_minus_sign:待测
 
 
 ## ✍️ Collaborators ##
