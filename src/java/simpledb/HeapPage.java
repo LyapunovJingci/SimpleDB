@@ -321,22 +321,30 @@ public class HeapPage implements Page {
     public Iterator<Tuple> iterator() {
         return new Iterator<Tuple>() {
             int loc = 0;
+            @Override
             public boolean hasNext() {
-                for (int i = 0; i < numSlots; i++) {
-                    if (isSlotUsed(i)) {
+                for (int i = loc; i < getNumTuples(); i++) {
+                    if (!isSlotUsed(i)) {
                         continue;
                     }
-                    loc++;
                     return true;
                 }
                 return false;
             }
-
+            @Override
             public Tuple next() {
                 if(!hasNext()) {
                     throw new IllegalArgumentException("no next");
+                } else {
+                    if (tuples[loc] == null) {
+                        loc++;
+                    }
+                    return tuples[loc++];
                 }
-                return tuples[loc];
+            }
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
             }
         };
     }
