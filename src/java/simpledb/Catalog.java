@@ -28,6 +28,8 @@ public class Catalog {
     private HashMap<Integer, String> id2pkey;
 
 
+
+
     /**
      * Constructor.
      * Creates a new, empty catalog.
@@ -56,7 +58,11 @@ public class Catalog {
         // not sure?
         //这里的意思是如果出现了名称冲突，那么就更新表单?
         if(name2id.containsKey(name)){
-            id = name2id.get(name);
+            int conflict = name2id.get(name);
+            name2id.remove(name);
+            id2name.remove(conflict);
+            id2file.remove(conflict);
+            id2pkey.remove(conflict);
         }
         name2id.put(name, id);
         id2name.put(id, name);
