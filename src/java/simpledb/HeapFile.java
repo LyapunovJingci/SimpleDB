@@ -67,11 +67,35 @@ public class HeapFile implements DbFile {
     public Page readPage(PageId pid) {
         // some code goes here
         //throws IllegalArgumentException if the page does not exist in this file.
-        //HeapPage(HeapPageId id, byte[] data)
-        RandomAccessFile
-        Page page = null;
-        byte[] data = new byte[BufferPool.PAGE_SIZE_PUB];
-        return page;
+        // HeapPage(HeapPageId id, byte[] data)
+        // RandomAccessFile can use seek() to find file, need use try? not sure feasible?
+        try {
+            RandomAccessFile file = new RandomAccessFile(f,"rw");
+            Page page = null;
+            // the address of this page
+            int loc = pid.pageNumber() * BufferPool.PAGE_SIZE_PUB;
+            byte[] data = new byte[BufferPool.PAGE_SIZE_PUB];
+            /**
+             * Returns the length of this file.
+             *
+             * @return     the length of this file, measured in bytes.
+             * @exception  IOException  if an I/O error occurs.
+             */
+            file.seek(loc);
+            /**
+             * Reads a sub array as a sequence of bytes.
+             * @param b the buffer into which the data is read.
+             * @param off the start offset of the data.
+             * @param len the number of bytes to read.
+             * @exception IOException If an I/O error has occurred.
+             */
+            file.read(data,0,BufferPool.PAGE_SIZE_PUB);
+            page = new HeapPage((HeapPageId) pid, data);
+            return page;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        throw new NoSuchElementException();
     }
 
     // see DbFile.java for javadocs
