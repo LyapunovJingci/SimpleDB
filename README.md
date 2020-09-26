@@ -8,8 +8,8 @@ Implement the core modules required to access stored data on disk.
 **TODO**
 1. Implement Tuples   :heavy_check_mark:
 2. Implement Catalog   :heavy_minus_sign:未通过
-3. Implement Buffer Pool  :heavy_minus_sign:待测
-4. Implement Heap Page   :heavy_minus_sign:HeapPageReadTest未通过
+3. Implement Buffer Pool  :heavy_check_mark:
+4. Implement Heap Page   :heavy_check_mark:
 5. Implement Heap File   :heavy_minus_sign:未通过
 6. Implement Operator (Seq Scan)   :heavy_minus_sign:未通过
 
