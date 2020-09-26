@@ -336,7 +336,10 @@ public class HeapPage implements Page {
                 if(!hasNext()) {
                     throw new IllegalArgumentException("no next");
                 } else {
-                    if (tuples[loc] == null) {
+                    while (loc < getNumTuples()) {
+                        if (tuples[loc] != null) {
+                            break;
+                        }
                         loc++;
                     }
                     return tuples[loc++];
