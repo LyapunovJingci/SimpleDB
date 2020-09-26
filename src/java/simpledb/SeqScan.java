@@ -1,5 +1,6 @@
 package simpledb;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /**
@@ -54,6 +55,9 @@ public class SeqScan implements DbIterator {
      * */
     public String getAlias() {
         // Done
+        if (tableAlias == null) {
+            return "NULL";
+        }
         return tableAlias;
     }
 
@@ -95,8 +99,17 @@ public class SeqScan implements DbIterator {
      *         prefixed with the tableAlias string from the constructor.
      */
     public TupleDesc getTupleDesc() {
-        // TODO
-        return null;
+        // Done
+        TupleDesc td = Database.getCatalog().getDatabaseFile(tableid).getTupleDesc();
+        int len = td.numFields();
+        TupleDesc.TDItem[] tupleDescs = new TupleDesc.TDItem[len];
+        for (int i = 0; i < len; i++) {
+            Type fieldType = td.getFieldType(i);
+            String fieldName = getAlias() + "." + td.getFieldName(i);
+            TupleDesc.TDItem tupleDesc = new TupleDesc.TDItem(fieldType, fieldName);
+            tupleDescs[i] = tupleDesc;
+        }
+        return new TupleDesc(tupleDescs);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
