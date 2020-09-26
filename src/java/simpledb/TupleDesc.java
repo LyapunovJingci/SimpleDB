@@ -113,10 +113,10 @@ public class TupleDesc implements Serializable {
      * @param TDItem
      *            copy value
      */
-    public TupleDesc(TDItem[] newtdItem) {
+    public TupleDesc(TDItem[] TDItem) {
         // Done
-        this.numFields = newtdItem.length;
-        tdItem = newtdItem;
+        this.numFields = TDItem.length;
+        tdItem = TDItem;
     }
 
     /**
@@ -240,10 +240,9 @@ public class TupleDesc implements Serializable {
                 return false;
             }
         }
-        else {
-            //no other type for this lab I think....
-            return false;
-        }
+
+        //no other type for this lab I think....
+        return false;
     }
 
     public int hashCode() {
@@ -262,15 +261,12 @@ public class TupleDesc implements Serializable {
     public String toString() {
         // Done
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < tdItem.length; i++) {
-            sb.append(tdItem[i].fieldType);
-            sb.append("(" + tdItem[i].fieldName + ")");
+        for (TDItem item : tdItem) {
+            sb.append(item.fieldType);
+            sb.append("(").append(item.fieldName).append(")");
             sb.append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
-//        for(tdItem item : TDItem){
-//            sb.append(item.toString() + ","); 反了
-//        }
         return sb.toString();
     }
 }

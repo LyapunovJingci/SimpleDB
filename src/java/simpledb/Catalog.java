@@ -19,15 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Catalog {
     /**
      * catalog: name2id
-     *          id2file DbFile, id2PromaryKey String, id2name String
+     *          id2file DbFile,
+     *          id2PrimaryKey String,
+     *          id2name String
      */
     private HashMap<String, Integer> name2id;
 
     private HashMap<Integer, String> id2name;
     private HashMap<Integer, DbFile> id2file;
     private HashMap<Integer, String> id2pkey;
-
-
 
 
     /**
@@ -53,6 +53,9 @@ public class Catalog {
      */
     public void addTable(DbFile file, String name, String pkeyField) {
         // some code goes here
+        if (name == null || pkeyField == null) {
+            throw new NoSuchElementException();
+        }
         int id = file.getId();
         //If a name conflict exists, use the last table to be added as the table for a given name.
         // not sure?
@@ -103,8 +106,9 @@ public class Catalog {
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
         // Done
-        if(!id2file.containsKey(tableid)) throw new NoSuchElementException();
-        return id2file.get(tableid).getTupleDesc();
+        //if(!id2file.containsKey(tableid)) throw new NoSuchElementException();
+        return getDatabaseFile(tableid).getTupleDesc();
+        //return id2file.get(tableid).getTupleDesc();
     }
 
     /**

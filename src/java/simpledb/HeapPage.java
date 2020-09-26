@@ -15,8 +15,8 @@ public class HeapPage implements Page {
 
     final HeapPageId pid;
     final TupleDesc td;
-    final byte header[];
-    final Tuple tuples[];
+    final byte[] header;
+    final Tuple[] tuples;
     final int numSlots;
 
     byte[] oldData;
@@ -67,7 +67,7 @@ public class HeapPage implements Page {
      */
     private int getNumTuples() {
         // some code goes here
-        return (int)Math.floor((BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1));
+        return (BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1);
     }
 
     /**
@@ -76,7 +76,7 @@ public class HeapPage implements Page {
      */
     private int getHeaderSize() {
         // some code goes here
-        return (int)Math.ceil(numSlots / 8);
+        return (int)Math.ceil(getNumTuples() / 8.0);
     }
 
     /** Return a view of this page before it was modified
@@ -301,8 +301,9 @@ public class HeapPage implements Page {
         int Byte = i / 8;
         int Bit = i % 8;
         byte thisByte = header[Byte];
-        return (byte)(thisByte << Bit) == 1;
+        //return (byte)(thisByte << Bit) == 1;
         //return (byte)(thisByte << (8 - Bit)) == 1;
+        return ((header[Byte] >> Bit) & 1) == 1;
     }
 
     /**
