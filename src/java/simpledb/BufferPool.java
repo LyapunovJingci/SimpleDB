@@ -96,7 +96,7 @@ public class BufferPool {
         if (!pid2page.containsKey(pid)) {
             return pid2page.get(pid);
         } else {
-            HeapFile
+            //HeapFile
         }
         throw new DbException("not exist");
     }

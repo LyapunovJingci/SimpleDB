@@ -68,7 +68,7 @@ public class HeapFile implements DbFile {
         // some code goes here
         //throws IllegalArgumentException if the page does not exist in this file.
         //HeapPage(HeapPageId id, byte[] data)
-        RandomAccessFile
+        //RandomAccessFile
         Page page = null;
         byte[] data = new byte[BufferPool.PAGE_SIZE_PUB];
         return page;
