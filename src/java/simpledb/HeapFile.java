@@ -128,11 +128,20 @@ public class HeapFile implements DbFile {
         // not necessary for lab1
     }
 
+    /**
+     * Returns an iterator over all the tuples stored in this DbFile. The
+     * iterator must use {@link BufferPool#getPage}, rather than
+     * {@link #readPage} to iterate through the pages.
+     *
+     * @return an iterator over all the tuples stored in this DbFile.
+     */
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
         // some code goes here
-        return null;
+        return new HeapFileIterator(tid, this);
     }
+
+
 
 }
 
