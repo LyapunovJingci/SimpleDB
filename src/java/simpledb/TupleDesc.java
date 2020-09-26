@@ -77,13 +77,13 @@ public class TupleDesc implements Serializable {
      *            be null.
      */
     public TupleDesc(Type[] typeAr, String[] fieldAr) {
-        // some code goes here
-        if(typeAr.length < 1) throw new IllegalArgumentException("It must contain at least one entry.");
-        if(typeAr.length != fieldAr.length) throw new IllegalArgumentException("should be same length");
-        //int l = typeAr.length;
+        // Done
+        if (typeAr.length < 1) throw new IllegalArgumentException("It must contain at least one entry.");
+        if (typeAr.length != fieldAr.length) throw new IllegalArgumentException("should be same length");
+
         numFields = typeAr.length;
         tdItem = new TDItem[numFields];
-        for(int i = 0; i < numFields; i++){
+        for (int i = 0; i < numFields; i++) {
             tdItem[i] = new TDItem(typeAr[i], fieldAr[i]);
         }
     }
@@ -97,14 +97,14 @@ public class TupleDesc implements Serializable {
      *            TupleDesc. It must contain at least one entry.
      */
     public TupleDesc(Type[] typeAr) {
-        // some code goes here
-        if(typeAr.length < 1) throw new IllegalArgumentException("It must contain at least one entry.");
-        //if(typeAr.length != fieldAr.length) throw new IllegalArgumentException("should be same length");
+        // Done
+        if (typeAr.length < 1) throw new IllegalArgumentException("It must contain at least one entry.");
+
         numFields = typeAr.length;
         tdItem = new TDItem[numFields];
         this.numFields = typeAr.length;
-        for(int i = 0; i < this.numFields; i++){
-            tdItem[i] = new TDItem(typeAr[i], new String());
+        for (int i = 0; i < this.numFields; i++) {
+            tdItem[i] = new TDItem(typeAr[i], "");
         }
     }
     /**
@@ -137,8 +137,8 @@ public class TupleDesc implements Serializable {
      *             if i is not a valid field reference.
      */
     public String getFieldName(int i) throws NoSuchElementException {
-        // some code goes here
-        if(i >= numFields || i < 0) throw new NoSuchElementException();
+        // Done
+        if (i >= numFields || i < 0) throw new NoSuchElementException();
         return tdItem[i].fieldName;
     }
 
@@ -153,8 +153,8 @@ public class TupleDesc implements Serializable {
      *             if i is not a valid field reference.
      */
     public Type getFieldType(int i) throws NoSuchElementException {
-        // some code goes here
-        if(i >= numFields || i < 0) throw new NoSuchElementException();
+        // Done
+        if (i >= numFields || i < 0) throw new NoSuchElementException();
         return tdItem[i].fieldType;
     }
 
@@ -168,9 +168,14 @@ public class TupleDesc implements Serializable {
      *             if no field with a matching name is found.
      */
     public int fieldNameToIndex(String name) throws NoSuchElementException {
-        // some code goes here
-        for(int i = 0; i < numFields; i++){
-            if(tdItem[i].fieldName != null && tdItem[i].fieldName.equals(name)) return i;
+        // Done
+        if (name == null) {
+            throw new NoSuchElementException();
+        }
+        for (int i = 0; i < numFields; i++){
+            if (tdItem[i].fieldName != null && tdItem[i].fieldName.equals(name)) {
+                return i;
+            }
         }
         throw new NoSuchElementException();
     }
@@ -180,10 +185,10 @@ public class TupleDesc implements Serializable {
      *         Note that tuples from a given TupleDesc are of a fixed size.
      */
     public int getSize() {
-        // some code goes here
+        // Done
         int count = 0;
         for(TDItem item : tdItem){
-            count += item.fieldType.getLen();  //见class Type
+            count += item.fieldType.getLen();
         }
         return count;
     }
@@ -204,10 +209,9 @@ public class TupleDesc implements Serializable {
         TDItem[] tdi2 = td2.tdItem;
         TDItem[] res = new TDItem[tdi1.length + tdi2.length];
         for(int i = 0; i < tdi1.length + tdi2.length; i++){
-            if(i < tdi1.length){
+            if (i < tdi1.length) {
                 res[i] = tdi1[i];
-            }
-            else {
+            } else {
                 res[i] = tdi2[i - tdi1.length];
             }
         }
@@ -224,25 +228,24 @@ public class TupleDesc implements Serializable {
      * @return true if the object is equal to this TupleDesc.
      */
     public boolean equals(Object o){
-        //
-        // return this == o;
-        if (o instanceof TupleDesc) {
-            TupleDesc tmp = (TupleDesc)o;
-            if ((tmp.getSize() == this.getSize()) && (tmp.numFields() == this.numFields())){
-                for (int i = 0; i < this.numFields() - 1; i++){
-                    if (!this.tdItem[i].equals(((TupleDesc) o).tdItem[i])){
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else {
+        // Done
+        if (!(o instanceof TupleDesc)) {
+            return false;
+        }
+
+        TupleDesc tmp = (TupleDesc)o;
+
+        if (tmp.getSize() != this.getSize() || tmp.numFields() != this.numFields()) {
+            return false;
+        }
+
+        for (int i = 0; i < this.numFields() - 1; i++){
+            if (!this.tdItem[i].equals(((TupleDesc) o).tdItem[i])){
                 return false;
             }
         }
+        return true;
 
-        //no other type for this lab I think....
-        return false;
     }
 
     public int hashCode() {
@@ -260,13 +263,12 @@ public class TupleDesc implements Serializable {
      */
     public String toString() {
         // Done
-        StringBuffer sb = new StringBuffer();
+        StringBuffer strBuffer = new StringBuffer();
         for (TDItem item : tdItem) {
-            sb.append(item.fieldType);
-            sb.append("(").append(item.fieldName).append(")");
-            sb.append(",");
+            strBuffer.append(item.fieldType);
+            strBuffer.append("(").append(item.fieldName).append(")").append(",");
         }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
+        strBuffer.deleteCharAt(strBuffer.length() - 1);
+        return strBuffer.toString();
     }
 }
