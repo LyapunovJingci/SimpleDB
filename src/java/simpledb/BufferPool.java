@@ -95,9 +95,8 @@ public class BufferPool {
         //if (pid2page.size() > pageNum) throw new DbException();
         if (!pid2page.containsKey(pid)) {
             return pid2page.get(pid);
-        }
-        else {
-            //得从哪读个东西，但是从哪来我没找到明白
+        } else {
+            HeapFile
         }
         throw new DbException("not exist");
     }

@@ -10,9 +10,9 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
-    private final TransactionId tid;
-    private final int tableid;
-    private final String tableAlias;
+    private  TransactionId tid;
+    private int tableid;
+    private String tableAlias;
 
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -93,6 +93,7 @@ public class SeqScan implements DbIterator {
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
+        return null;
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
