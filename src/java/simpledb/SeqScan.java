@@ -10,7 +10,7 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
-    private  TransactionId tid;
+    private TransactionId tid;
     private int tableid;
     private String tableAlias;
 
