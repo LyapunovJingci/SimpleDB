@@ -26,7 +26,7 @@ public class BufferPool {
      other classes. BufferPool should use the numPages argument to the
      constructor instead. */
     public static final int DEFAULT_PAGES = 50;
-    public static final int PAGE_SIZE_PUB = PAGE_SIZE;
+    //public static final int PAGE_SIZE_PUB = PAGE_SIZE;
 
     /**
      * Creates a BufferPool that caches up to numPages pages.

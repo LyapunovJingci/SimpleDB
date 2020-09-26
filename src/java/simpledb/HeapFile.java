@@ -73,8 +73,8 @@ public class HeapFile implements DbFile {
             RandomAccessFile file = new RandomAccessFile(f,"rw");
             Page page = null;
             // the address of this page
-            int loc = pid.pageNumber() * BufferPool.PAGE_SIZE_PUB;
-            byte[] data = new byte[BufferPool.PAGE_SIZE_PUB];
+            int loc = pid.pageNumber() * BufferPool.getPageSize();
+            byte[] data = new byte[BufferPool.getPageSize()];
             /**
              * Returns the length of this file.
              *
@@ -89,7 +89,7 @@ public class HeapFile implements DbFile {
              * @param len the number of bytes to read.
              * @exception IOException If an I/O error has occurred.
              */
-            file.read(data,0,BufferPool.PAGE_SIZE_PUB);
+            file.read(data,0,BufferPool.getPageSize());
             page = new HeapPage((HeapPageId) pid, data);
             return page;
         } catch (IOException e) {

@@ -58,8 +58,6 @@ public class Catalog {
         }
         int id = file.getId();
         //If a name conflict exists, use the last table to be added as the table for a given name.
-        // not sure?
-        //这里的意思是如果出现了名称冲突，那么就更新表单?
         if(name2id.containsKey(name)){
             int conflict = name2id.get(name);
             name2id.remove(name);
