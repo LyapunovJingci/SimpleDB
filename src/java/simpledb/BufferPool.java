@@ -96,7 +96,7 @@ public class BufferPool {
         if (!pid2page.containsKey(pid)) {
             return pid2page.get(pid);
         } else {
-            HeapFile
+            //这里要从一个地方读文件大概，但是没想明白从哪读，我还得再读一下其他class的代码
         }
         throw new DbException("not exist");
     }
