@@ -34,21 +34,21 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     private int pageNum;
-    private HashMap<Integer, Page>  pid2page;
-    private HashMap<Integer, Integer>  tid2pid;
-    private HashMap<Integer, Integer>  pid2tid;
-    private int time;
-    private int dtime;
+    private HashMap<PageId, Page>  pid2page;
+    //private HashMap<Integer, Integer>  tid2pid;
+    //private HashMap<Integer, Integer>  pid2tid;
+    //private int time;
+    //private int dtime;
     public BufferPool(int numPages) {
         // some code goes here
         //需要tid哈希表吗，transaction应该是读或写吧，这个做成哈希有啥用呢?
 
         pageNum = numPages;
         pid2page = new HashMap<>(pageNum);
-        tid2pid = new HashMap<>(pageNum);
-        pid2tid = new HashMap<>(pageNum);
-        time = 0;
-        dtime = 0;
+        //tid2pid = new HashMap<>(pageNum);
+        //pid2tid = new HashMap<>(pageNum);
+        //time = 0;
+        //dtime = 0;
     }
 
     public static int getPageSize() {
@@ -95,10 +95,18 @@ public class BufferPool {
         //if (pid2page.size() > pageNum) throw new DbException();
         if (!pid2page.containsKey(pid)) {
             return pid2page.get(pid);
-        } else {
-            //这里要从一个地方读文件大概，但是没想明白从哪读，我还得再读一下其他class的代码
         }
-        throw new DbException("not exist");
+        else {
+            //这里要从一个地方读文件大概，但是没想明白从哪读，我还得再读一下其他class的代码
+            // DB => Catalog + pid => table id => DBfile => page，用pid读出file然后再在file里用pid找page...
+            //DbFile getDatabaseFile(int tableid)
+            //Page readPage(PageId id);
+            DbFile hf = Database.getCatalog().getDatabaseFile(pid.getTableId());
+            Page page = hf.readPage(pid);
+            pid2page.put(pid,page);
+            return page;
+        }
+        //throw new DbException("not exist");
     }
         /**
          * Releases the lock on a page.
