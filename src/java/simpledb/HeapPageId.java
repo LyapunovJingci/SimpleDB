@@ -39,7 +39,7 @@ public class HeapPageId implements PageId {
      */
     public int hashCode() {
         // Done
-        return (tableId % 17 + pgNo) % 19; //瞎编的
+        return (tableId * 17 + pgNo) % 9901;
     }
 
     /**
