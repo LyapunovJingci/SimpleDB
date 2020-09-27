@@ -93,7 +93,7 @@ public class BufferPool {
         //所以这里大概是这样? (这里我没加tid相关的信息)
         ///////////////////////////////////////////////////////////
         //if (pid2page.size() > pageNum) throw new DbException();
-        if (!pid2page.containsKey(pid)) {
+        if (pid2page.containsKey(pid)) {
             return pid2page.get(pid);
         }
         else {

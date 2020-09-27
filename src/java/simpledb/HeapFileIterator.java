@@ -38,26 +38,30 @@ public class HeapFileIterator implements DbFileIterator{
     /**
      * open iterator and index => first page
      */
+    @Override
     public void open() throws TransactionAbortedException, DbException {
         index = 0;
-        t = getT(new HeapPageId(hf.getId(), index));
+        HeapPageId pid = new HeapPageId(hf.getId(), index);
+        t = getT(pid);
     }
 
     /**
      * check null, hasNext for this page, hasNext for whole HeapFile(next not empty)
      * @return hasNext
      */
+    @Override
     public boolean hasNext() throws TransactionAbortedException, DbException {
         if(t == null) return false;
         if(t.hasNext()) return true;
         if(hf.numPages() > index + 1){
-            return getT(new HeapPageId(hf.getId(), index+1)).hasNext();
+            index++;
+            return getT(new HeapPageId(hf.getId(), index)).hasNext();
         }
         return false;
     }
-
+    @Override
     public Tuple next() throws TransactionAbortedException, DbException {
-        if(!hasNext()) throw new IllegalArgumentException("no next");
+        if(!hasNext()) throw new NoSuchElementException();
         else{
             return t.next();
         }
@@ -68,11 +72,12 @@ public class HeapFileIterator implements DbFileIterator{
      * @throws TransactionAbortedException
      * @throws DbException
      */
+    @Override
     public void rewind() throws TransactionAbortedException, DbException {
         close();
         open();
     }
-
+    @Override
     public void close(){
         t = null;
     }
