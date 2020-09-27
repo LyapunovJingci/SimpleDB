@@ -31,11 +31,20 @@ public class TupleDesc implements Serializable {
             this.fieldName = n;
             this.fieldType = t;
         }
-
         public String toString() {
             return fieldName + "(" + fieldType + ")";
         }
-
+        /////////////////////////////////////////////////////////////////////////
+        //---------------------------------------------------------------------//
+        public boolean equals(Object o) {
+            if (o == null || o.getClass() != this.getClass()) {
+                return false;
+            }
+            TDItem that = (TDItem) o;
+            return Objects.equals(this.fieldName, that.fieldName) && Objects.equals(this.fieldType, that.fieldType);
+        }
+        //---------------------------------------------------------------------//
+        /////////////////////////////////////////////////////////////////////////
     }
 
     /**
@@ -44,7 +53,7 @@ public class TupleDesc implements Serializable {
      *        that are included in this TupleDesc
      * */
     public Iterator<TDItem> iterator() {
-        // some code goes here
+        // Done
         return new Iterator<TDItem>() {
 
             int loc = 0;
@@ -196,7 +205,7 @@ public class TupleDesc implements Serializable {
     public int getSize() {
         // Done
         int count = 0;
-        for (TDItem item : tdItems){
+        for (TDItem item : tdItems) {
             count += item.fieldType.getLen();
         }
         return count;
