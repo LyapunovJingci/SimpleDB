@@ -18,7 +18,7 @@ public class HeapPageId implements PageId {
 
     /** @return the table associated with this PageId */
     public int getTableId() {
-        // some code goes here
+        // Done
         return tableId;
     }
 
@@ -27,7 +27,7 @@ public class HeapPageId implements PageId {
      *   this PageId
      */
     public int pageNumber() {
-        // some code goes here
+        // Done
         return pgNo;
     }
 
@@ -38,9 +38,8 @@ public class HeapPageId implements PageId {
      * @see BufferPool
      */
     public int hashCode() {
-        // some code goes here
+        // Done
         return (tableId % 17 + pgNo) % 19; //瞎编的
-        //throw new UnsupportedOperationException("implement this");
     }
 
     /**
@@ -51,15 +50,13 @@ public class HeapPageId implements PageId {
      *   ids are the same)
      */
     public boolean equals(Object o) {
-        // some code goes here
-        if(o instanceof HeapPageId){
-            PageId obj = (PageId) o;
-            if (obj.getTableId() == tableId && obj.pageNumber() == pgNo) {
-                return true;
-            }
+        // Done
+        if (!(o instanceof HeapPageId)) {
             return false;
         }
-        else return false;
+
+        PageId obj = (PageId) o;
+        return obj.getTableId() == tableId && obj.pageNumber() == pgNo;
     }
 
     /**
