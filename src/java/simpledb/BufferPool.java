@@ -95,14 +95,13 @@ public class BufferPool {
         //if (pid2page.size() > pageNum) throw new DbException();
         if (pid2page.containsKey(pid)) {
             return pid2page.get(pid);
-        }
-        else {
+        } else {
             //这里要从一个地方读文件大概，但是没想明白从哪读，我还得再读一下其他class的代码
             // DB => Catalog + pid => table id => DBfile => page，用pid读出file然后再在file里用pid找page...
             //DbFile getDatabaseFile(int tableid)
             //Page readPage(PageId id);
-            DbFile hf = Database.getCatalog().getDatabaseFile(pid.getTableId());
-            Page page = hf.readPage(pid);
+            HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
+            HeapPage page = (HeapPage) hf.readPage(pid);
             pid2page.put(pid,page);
             return page;
         }

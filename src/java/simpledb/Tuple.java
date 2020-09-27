@@ -105,8 +105,7 @@ public class Tuple implements Serializable {
         for (int i = 0; i < fields.length; i++){
             if(i == fields.length - 1){
                 strBuffer.append(fields[i].toString());
-            }
-            else{
+            } else {
                 strBuffer.append(fields[i].toString()).append("\t");
             }
         }
@@ -118,15 +117,14 @@ public class Tuple implements Serializable {
      *        An iterator which iterates over all the fields of this tuple
      * */
 
-    public Iterator<Field> fields()
-    {
+    public Iterator<Field> fields() {
         // Done
         return new Iterator<Field>() {
 
-            private int loc = -1;
+            private int loc = 0;
             @Override
             public boolean hasNext() {
-                return loc + 1 < fields.length;
+                return loc < fields.length;
             }
 
             @Override
@@ -135,17 +133,16 @@ public class Tuple implements Serializable {
                     loc++;
                     return fields[loc];
                 }
-                else throw new NoSuchElementException();
+                throw new NoSuchElementException();
             }
         };
     }
 
 
     /**
-     * reset the TupleDesc of thi tuple ???????
+     * reset the TupleDesc of thi tuple
      * */
-    public void resetTupleDesc(TupleDesc td)
-    {
+    public void resetTupleDesc(TupleDesc td) {
         // Done
         tupleDesc = td;
         fields = new Field[td.numFields()];

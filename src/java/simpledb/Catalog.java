@@ -59,13 +59,13 @@ public class Catalog {
         int id = file.getId();
         //If a name conflict exists, use the last table to be added as the table for a given name.
         //这里好像不需要这么写，put就相当于直接覆盖原来的内容，不用提前remove
-        if(name2id.containsKey(name)){
-            int conflict = name2id.get(name);
-            name2id.remove(name);
-            id2name.remove(conflict);
-            id2file.remove(conflict);
-            id2pkey.remove(conflict);
-        }
+//        if(name2id.containsKey(name)){
+//            int conflict = name2id.get(name);
+//            name2id.remove(name);
+//            id2name.remove(conflict);
+//            id2file.remove(conflict);
+//            id2pkey.remove(conflict);
+//        }
         name2id.put(name, id);
         id2name.put(id, name);
         id2file.put(id, file);
@@ -105,9 +105,9 @@ public class Catalog {
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
         // TODO
-        //if(!id2file.containsKey(tableid)) throw new NoSuchElementException();
-        return getDatabaseFile(tableid).getTupleDesc();
-        //return id2file.get(tableid).getTupleDesc();
+        DbFile file = getDatabaseFile(tableid);
+        if (file == null) throw new NoSuchElementException();
+        return file.getTupleDesc();
     }
 
     /**
