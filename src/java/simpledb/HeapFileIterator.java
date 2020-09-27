@@ -33,7 +33,6 @@ public class HeapFileIterator implements DbFileIterator{
         Permissions perm = Permissions.READ_WRITE;
         PageId pageId = new HeapPageId(hf.getId(), id);
         HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
-        //System.out.format("not null\n");
         return hp.iterator();
     }
 
@@ -54,19 +53,14 @@ public class HeapFileIterator implements DbFileIterator{
     @Override
     public boolean hasNext() throws TransactionAbortedException, DbException {
         if(t == null){
-            //System.out.format("null\n");
             return false;
         }
         else if(t.hasNext()) {
             return true;
         }
         else if(hf.numPages() > index+1){
-            //index++;
-            //System.out.format("not null\n");
-            //System.out.println(getT(new HeapPageId(hf.getId(), index)).hasNext());
             return getI(index+1).hasNext();
         }
-        //System.out.format("%d %d\n",hf.numPages(),index+1);
         return false;
     }
 
@@ -78,7 +72,6 @@ public class HeapFileIterator implements DbFileIterator{
      */
     @Override
     public Tuple next() throws TransactionAbortedException, DbException {
-        //System.out.println(hasNext());
         if(t == null) throw new NoSuchElementException("null");
         else if(t.hasNext()) {
             return t.next();
