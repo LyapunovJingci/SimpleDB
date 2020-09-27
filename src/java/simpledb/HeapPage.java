@@ -66,7 +66,7 @@ public class HeapPage implements Page {
      @return the number of tuples on this page
      */
     private int getNumTuples() {
-        // some code goes here
+        // Done
         return (BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1);
     }
 
@@ -75,7 +75,7 @@ public class HeapPage implements Page {
      * @return the number of bytes in the header of a page in a HeapFile with each tuple occupying tupleSize bytes
      */
     private int getHeaderSize() {
-        // some code goes here
+        // Done
         return (int)Math.ceil(getNumTuples() / 8.0);
     }
 
@@ -108,7 +108,7 @@ public class HeapPage implements Page {
      * @return the PageId associated with this page.
      */
     public HeapPageId getId() {
-        // some code goes here
+        // Done
         return pid;
     }
 
@@ -278,7 +278,7 @@ public class HeapPage implements Page {
      * Returns the number of empty slots on this page.
      */
     public int getNumEmptySlots() {
-        // some code goes here
+        // Done
         int count = 0;
         for (int i = 0; i < tuples.length; i++) {
             if (isSlotUsed(i)) {
@@ -293,16 +293,10 @@ public class HeapPage implements Page {
      * Returns true if associated slot on this page is filled.
      */
     public boolean isSlotUsed(int i) {
-        // some code goes here
-        // header == 1 -> valid, header == 0 -> not valid
-        // 位运算 没算明白,i/8找到header的位置，header这里应该是8位，i%8就是要check那位（就是不知道是正着还是反着）
-        // Byte == address of header, Bit = address of slot?
+        // Done
         if(i < 0 || i >= numSlots || i / 8 >= header.length) throw new IllegalArgumentException();
         int Byte = i / 8;
         int Bit = i % 8;
-        byte thisByte = header[Byte];
-        //return (byte)(thisByte << Bit) == 1;
-        //return (byte)(thisByte << (8 - Bit)) == 1;
         return ((header[Byte] >> Bit) & 1) == 1;
     }
 
@@ -319,6 +313,7 @@ public class HeapPage implements Page {
      * (note that this iterator shouldn't return tuples in empty slots!)
      */
     public Iterator<Tuple> iterator() {
+        // Done
         return new Iterator<Tuple>() {
             int loc = 0;
             @Override

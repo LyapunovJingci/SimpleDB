@@ -29,7 +29,7 @@ public class RecordId implements Serializable {
      * @return the tuple number this RecordId references.
      */
     public int tupleno() {
-        // some code goes here
+        // Done
         return tupleno;
     }
 
@@ -37,7 +37,7 @@ public class RecordId implements Serializable {
      * @return the page id this RecordId references.
      */
     public PageId getPageId() {
-        // some code goes here
+        // Done
         return pid;
     }
 
@@ -49,13 +49,12 @@ public class RecordId implements Serializable {
      */
     @Override
     public boolean equals(Object o) {
-        // some code goes here
-        RecordId obj = (RecordId) o;
-        if (obj.tupleno == tupleno && obj.getPageId().equals(pid)) {
-            return true;
+        // Done
+        if (!(o instanceof RecordId)) {
+            return false;
         }
-        return false;
-        //throw new UnsupportedOperationException("implement this");
+        RecordId obj = (RecordId) o;
+        return obj.tupleno == tupleno && obj.getPageId().equals(pid);
     }
 
     /**
@@ -66,10 +65,8 @@ public class RecordId implements Serializable {
      */
     @Override
     public int hashCode() {
-        // some code goes here
-        return tupleno % 92083; //瞎编的
-        //throw new UnsupportedOperationException("implement this");
-
+        // Done
+        return tupleno % 92083;
     }
 
 }

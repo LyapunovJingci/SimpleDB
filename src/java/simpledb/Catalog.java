@@ -58,6 +58,7 @@ public class Catalog {
         }
         int id = file.getId();
         //If a name conflict exists, use the last table to be added as the table for a given name.
+        //这里好像不需要这么写，put就相当于直接覆盖原来的内容，不用提前remove
         if(name2id.containsKey(name)){
             int conflict = name2id.get(name);
             name2id.remove(name);
@@ -92,7 +93,7 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // Done
-        if(!name2id.containsKey(name)) throw new NoSuchElementException();
+        if (!name2id.containsKey(name)) throw new NoSuchElementException();
         return name2id.get(name);
     }
 
@@ -103,7 +104,7 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
-        // Done
+        // TODO
         //if(!id2file.containsKey(tableid)) throw new NoSuchElementException();
         return getDatabaseFile(tableid).getTupleDesc();
         //return id2file.get(tableid).getTupleDesc();
@@ -117,13 +118,13 @@ public class Catalog {
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
         // Done
-        if(!id2file.containsKey(tableid)) throw new NoSuchElementException();
+        if (!id2file.containsKey(tableid)) throw new NoSuchElementException();
         return id2file.get(tableid);
     }
 
     public String getPrimaryKey(int tableid) {
         // Done
-        if(!id2pkey.containsKey(tableid)) throw new NoSuchElementException();
+        if (!id2pkey.containsKey(tableid)) throw new NoSuchElementException();
         return id2pkey.get(tableid);
     }
 
@@ -134,7 +135,7 @@ public class Catalog {
 
     public String getTableName(int id) {
         // Done
-        if(!id2name.containsKey(id)) throw new NoSuchElementException();
+        if (!id2name.containsKey(id)) throw new NoSuchElementException();
         return id2name.get(id);
     }
 
