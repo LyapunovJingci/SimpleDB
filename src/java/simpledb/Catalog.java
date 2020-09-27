@@ -23,11 +23,11 @@ public class Catalog {
      *          id2PrimaryKey String,
      *          id2name String
      */
-    private HashMap<String, Integer> name2id;
+    private HashMap<String, Integer> name2Id;
 
-    private HashMap<Integer, String> id2name;
-    private HashMap<Integer, DbFile> id2file;
-    private HashMap<Integer, String> id2pkey;
+    private HashMap<Integer, String> id2Name;
+    private HashMap<Integer, DbFile> id2File;
+    private HashMap<Integer, String> id2Pkey;
 
 
     /**
@@ -36,10 +36,10 @@ public class Catalog {
      */
     public Catalog() {
         //Done
-        this.name2id = new HashMap<>();
-        this.id2file = new HashMap<>();
-        this.id2pkey = new HashMap<>();
-        this.id2name = new HashMap<>();
+        this.name2Id = new HashMap<>();
+        this.id2Name = new HashMap<>();
+        this.id2File = new HashMap<>();
+        this.id2Pkey = new HashMap<>();
     }
 
     /**
@@ -52,24 +52,20 @@ public class Catalog {
      * @param pkeyField the name of the primary key field
      */
     public void addTable(DbFile file, String name, String pkeyField) {
-        // some code goes here
+        // Done
         if (name == null || pkeyField == null) {
             throw new NoSuchElementException();
         }
         int id = file.getId();
+
         //If a name conflict exists, use the last table to be added as the table for a given name.
-        //这里好像不需要这么写，put就相当于直接覆盖原来的内容，不用提前remove
-//        if(name2id.containsKey(name)){
-//            int conflict = name2id.get(name);
-//            name2id.remove(name);
-//            id2name.remove(conflict);
-//            id2file.remove(conflict);
-//            id2pkey.remove(conflict);
-//        }
-        name2id.put(name, id);
-        id2name.put(id, name);
-        id2file.put(id, file);
-        id2pkey.put(id, pkeyField);
+        if (name2Id.containsKey(name)){
+            //leave for future name conflict solver
+        }
+        name2Id.put(name, id);
+        id2Name.put(id, name);
+        id2File.put(id, file);
+        id2Pkey.put(id, pkeyField);
     }
 
     public void addTable(DbFile file, String name) {
@@ -93,8 +89,8 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // Done
-        if (!name2id.containsKey(name)) throw new NoSuchElementException();
-        return name2id.get(name);
+        if (!name2Id.containsKey(name)) throw new NoSuchElementException();
+        return name2Id.get(name);
     }
 
     /**
@@ -104,7 +100,7 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
-        // TODO
+        // Done
         DbFile file = getDatabaseFile(tableid);
         if (file == null) throw new NoSuchElementException();
         return file.getTupleDesc();
@@ -118,34 +114,34 @@ public class Catalog {
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
         // Done
-        if (!id2file.containsKey(tableid)) throw new NoSuchElementException();
-        return id2file.get(tableid);
+        if (!id2File.containsKey(tableid)) throw new NoSuchElementException();
+        return id2File.get(tableid);
     }
 
     public String getPrimaryKey(int tableid) {
         // Done
-        if (!id2pkey.containsKey(tableid)) throw new NoSuchElementException();
-        return id2pkey.get(tableid);
+        if (!id2Pkey.containsKey(tableid)) throw new NoSuchElementException();
+        return id2Pkey.get(tableid);
     }
 
     public Iterator<Integer> tableIdIterator() {
         // Done
-        return id2name.keySet().iterator();
+        return id2Name.keySet().iterator();
     }
 
     public String getTableName(int id) {
         // Done
-        if (!id2name.containsKey(id)) throw new NoSuchElementException();
-        return id2name.get(id);
+        if (!id2Name.containsKey(id)) throw new NoSuchElementException();
+        return id2Name.get(id);
     }
 
     /** Delete all tables from the catalog */
     public void clear() {
         // Done
-        name2id.clear();
-        id2name.clear();
-        id2pkey.clear();
-        id2file.clear();
+        name2Id.clear();
+        id2Name.clear();
+        id2Pkey.clear();
+        id2File.clear();
     }
 
     /**

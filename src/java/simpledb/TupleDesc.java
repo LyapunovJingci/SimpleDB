@@ -31,20 +31,21 @@ public class TupleDesc implements Serializable {
             this.fieldName = n;
             this.fieldType = t;
         }
+        @Override
         public String toString() {
             return fieldName + "(" + fieldType + ")";
         }
-        /////////////////////////////////////////////////////////////////////////
-        //---------------------------------------------------------------------//
-        public boolean equals(Object o) {
-            if (o == null || o.getClass() != this.getClass()) {
+
+        @Override
+        public boolean equals (Object o) {
+            if (!(o instanceof TDItem)) {
                 return false;
             }
-            TDItem that = (TDItem) o;
-            return Objects.equals(this.fieldName, that.fieldName) && Objects.equals(this.fieldType, that.fieldType);
+
+            TDItem obj = (TDItem) o;
+            return obj.fieldName.equals(this.fieldName) && Objects.equals(this.fieldType, obj.fieldType);
         }
-        //---------------------------------------------------------------------//
-        /////////////////////////////////////////////////////////////////////////
+
     }
 
     /**
@@ -57,11 +58,12 @@ public class TupleDesc implements Serializable {
         return new Iterator<TDItem>() {
 
             int loc = 0;
-
+            @Override
             public boolean hasNext() {
                 return loc < tdItems.length;
             }
 
+            @Override
             public TDItem next() {
                 if (hasNext()) {
                     loc++;

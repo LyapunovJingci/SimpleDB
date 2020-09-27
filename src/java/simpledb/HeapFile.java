@@ -24,7 +24,7 @@ public class HeapFile implements DbFile {
      *            file.
      */
     public HeapFile(File f, TupleDesc td) {
-        // some code goes here
+        // Done
         this.f = f;
         this.td = td;
     }
@@ -35,7 +35,7 @@ public class HeapFile implements DbFile {
      * @return the File backing this HeapFile on disk.
      */
     public File getFile() {
-        // some code goes here
+        // Done
         return f;
     }
 
@@ -49,7 +49,7 @@ public class HeapFile implements DbFile {
      * @return an ID uniquely identifying this HeapFile.
      */
     public int getId() {
-        // some code goes here
+        // Done
         return f.getAbsoluteFile().hashCode();
     }
 
@@ -59,18 +59,18 @@ public class HeapFile implements DbFile {
      * @return TupleDesc of this DbFile.
      */
     public TupleDesc getTupleDesc() {
-        // some code goes here
+        // Done
         return td;
     }
 
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
-        // some code goes here
+        // Done
         //throws IllegalArgumentException if the page does not exist in this file.
         // HeapPage(HeapPageId id, byte[] data)
         // RandomAccessFile can use seek() to find file, need use try? not sure feasible?
         try {
-            RandomAccessFile file = new RandomAccessFile(f,"rw");
+            RandomAccessFile file = new RandomAccessFile(f,"r");
             Page page = null;
             // the address of this page
             int loc = pid.pageNumber() * BufferPool.getPageSize();
@@ -108,7 +108,7 @@ public class HeapFile implements DbFile {
      * Returns the number of pages in this HeapFile.
      */
     public int numPages() {
-        // some code goes here
+        // Done
         return (int)Math.ceil(f.length() / (double)BufferPool.getPageSize());
     }
 
@@ -137,7 +137,7 @@ public class HeapFile implements DbFile {
      */
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
-        // some code goes here
+        // Done
         return new HeapFileIterator(tid, this);
     }
 
