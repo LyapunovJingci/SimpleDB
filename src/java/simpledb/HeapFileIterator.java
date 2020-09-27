@@ -29,10 +29,39 @@ public class HeapFileIterator implements DbFileIterator{
      * DataBase => BufferPool(tid,pid,perm) => get page => HeapPage Iterator<Tuple> iterator()
      * @return Iterable<Tuple>
      */
-    public Iterator<Tuple> getT(HeapPageId pid) throws TransactionAbortedException, DbException {
+    /*
+    public Iterator<Tuple> getI(HeapPageId pid) throws TransactionAbortedException, DbException {
         Permissions perm = Permissions.READ_WRITE;
         HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pid, perm);
+        //System.out.format("not null\n");
         return hp.iterator();
+    }
+    public Iterator<Tuple> getI(int id) throws TransactionAbortedException, DbException {
+        Permissions perm = Permissions.READ_WRITE;
+        PageId pageId = new HeapPageId(hf.getId(), id);
+        HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pid, perm);
+        //System.out.format("not null\n");
+        return hp.iterator();
+    }
+     */
+
+    /**
+     * Using iterator in HeapPage, reload the iterator for every page, used to check size
+     * @param id
+     * @return a list of tuple
+     * @throws TransactionAbortedException
+     * @throws DbException
+     */
+    private List<Tuple> getL(int id) throws TransactionAbortedException, DbException{
+        Permissions perm = Permissions.READ_WRITE;
+        PageId pageId = new HeapPageId(hf.getId(), id);
+        HeapPage hp =(HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
+        List<Tuple> List = new ArrayList<Tuple>();
+        Iterator<Tuple> transfer = hp.iterator();
+        while(transfer.hasNext()){
+            List.add(transfer.next());
+        }
+        return List;
     }
 
     /**
@@ -41,8 +70,7 @@ public class HeapFileIterator implements DbFileIterator{
     @Override
     public void open() throws TransactionAbortedException, DbException {
         index = 0;
-        HeapPageId pid = new HeapPageId(hf.getId(), index);
-        t = getT(pid);
+        t = getL(index).iterator();
     }
 
     /**
@@ -51,19 +79,49 @@ public class HeapFileIterator implements DbFileIterator{
      */
     @Override
     public boolean hasNext() throws TransactionAbortedException, DbException {
-        if(t == null) return false;
-        if(t.hasNext()) return true;
-        if(hf.numPages() > index + 1){
-            index++;
-            return getT(new HeapPageId(hf.getId(), index)).hasNext();
+        if(t == null){
+            //System.out.format("null\n");
+            return false;
         }
+        else if(t.hasNext()) {
+            return true;
+        }
+        else if(hf.numPages() > index+1){
+            //index++;
+            //System.out.format("not null\n");
+            //System.out.println(getT(new HeapPageId(hf.getId(), index)).hasNext());
+            return getL(index+1).size() != 0;
+        }
+        //System.out.format("%d %d\n",hf.numPages(),index+1);
         return false;
     }
+
+    /**
+     * check t == null => has next in this page => has next page => has tuple in next page
+     * @return the next Tuple
+     * @throws TransactionAbortedException
+     * @throws DbException
+     */
     @Override
     public Tuple next() throws TransactionAbortedException, DbException {
-        if(!hasNext()) throw new NoSuchElementException();
-        else{
+        //System.out.println(hasNext());
+        if(t == null) throw new NoSuchElementException("null");
+        else if(t.hasNext()) {
             return t.next();
+        }
+        else{
+            if(hf.numPages() > index + 1){
+                index++;
+                t = null;
+                t = getL(index).iterator();
+                if(t.hasNext()) return t.next();
+                else{
+                    throw new NoSuchElementException("end");
+                }
+            }
+            else{
+                throw new NoSuchElementException("end");
+            }
         }
     }
 
