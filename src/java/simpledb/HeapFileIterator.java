@@ -9,7 +9,7 @@ import java.util.*;
 public class HeapFileIterator implements DbFileIterator{
     private TransactionId tid;
     private HeapFile hf;
-    private Iterator<Tuple> t;
+    private Iterator<Tuple> iterator;
     private int index;
 
     /**
@@ -39,7 +39,7 @@ public class HeapFileIterator implements DbFileIterator{
     @Override
     public void open() throws TransactionAbortedException, DbException {
         index = 0;
-        t = getIterator(index);
+        iterator = getIterator(index);
     }
 
     /**
@@ -48,16 +48,15 @@ public class HeapFileIterator implements DbFileIterator{
      */
     @Override
     public boolean hasNext() throws TransactionAbortedException, DbException {
-        if(t == null){
+        if(iterator == null){
             return false;
         }
-        else if(t.hasNext()) {
-            return true;
+        if (hf.numPages() > index + 1) {
+            return getIterator(index + 1).hasNext();
+        } else {
+            return iterator.hasNext();
         }
-        else if(hf.numPages() > index+1){
-            return getIterator(index+1).hasNext();
-        }
-        return false;
+
     }
 
     /**
@@ -68,24 +67,19 @@ public class HeapFileIterator implements DbFileIterator{
      */
     @Override
     public Tuple next() throws TransactionAbortedException, DbException {
-        if(t == null) throw new NoSuchElementException("null");
-        else if(t.hasNext()) {
-            return t.next();
+        if (iterator == null) throw new NoSuchElementException("null");
+        if (iterator.hasNext()) {
+            return iterator.next();
         }
-        else{
-            if(hf.numPages() > index + 1){
-                index++;
-                t = null;
-                t = getIterator(index);
-                if(t.hasNext()) return t.next();
-                else{
-                    throw new NoSuchElementException("end");
-                }
-            }
-            else{
-                throw new NoSuchElementException("end");
+
+        if (hf.numPages() > index + 1) {
+            index++;
+            iterator = getIterator(index);
+            if(iterator.hasNext()) {
+                return iterator.next();
             }
         }
+        throw new NoSuchElementException("end");
     }
 
     /**
@@ -103,6 +97,6 @@ public class HeapFileIterator implements DbFileIterator{
      */
     @Override
     public void close(){
-        t = null;
+        iterator = null;
     }
 }
