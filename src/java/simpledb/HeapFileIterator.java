@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * Returns an iterator over all the tuples stored in this DbFile. The
  * iterator must use {@link BufferPool#getPage}, rather than
- * {@link #readPage} to iterate through the pages.
+ * {@link HeapFile#readPage} to iterate through the pages.
  *
  * @return an iterator over all the tuples stored in this DbFile.
  */
@@ -56,15 +56,24 @@ public class HeapFileIterator implements DbFileIterator{
         return false;
     }
 
-    public Tuple next(){
-
+    public Tuple next() throws TransactionAbortedException, DbException {
+        if(!hasNext()) throw new IllegalArgumentException("no next");
+        else{
+            return t.next();
+        }
     }
 
-    public void rewind(){
-
+    /**
+     * need to close it at first
+     * @throws TransactionAbortedException
+     * @throws DbException
+     */
+    public void rewind() throws TransactionAbortedException, DbException {
+        close();
+        open();
     }
 
     public void close(){
-
+        t = null;
     }
 }
