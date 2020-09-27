@@ -1,6 +1,5 @@
 package simpledb;
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -29,21 +28,20 @@ public class HeapFileIterator implements DbFileIterator{
      * DataBase => BufferPool(tid,pid,perm) => get page => HeapPage Iterator<Tuple> iterator()
      * @return Iterable<Tuple>
      */
-    public Iterator<Tuple> getI(int id) throws TransactionAbortedException, DbException {
-        Permissions perm = Permissions.READ_WRITE;
+    public Iterator<Tuple> getIterator(int id) throws TransactionAbortedException, DbException {
+        Permissions perm = Permissions.READ_ONLY;
         PageId pageId = new HeapPageId(hf.getId(), id);
         HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
         return hp.iterator();
     }
-
-
+    
     /**
      * open iterator and index => first page
      */
     @Override
     public void open() throws TransactionAbortedException, DbException {
         index = 0;
-        t = getI(index);
+        t = getIterator(index);
     }
 
     /**
@@ -59,7 +57,7 @@ public class HeapFileIterator implements DbFileIterator{
             return true;
         }
         else if(hf.numPages() > index+1){
-            return getI(index+1).hasNext();
+            return getIterator(index+1).hasNext();
         }
         return false;
     }
@@ -80,7 +78,7 @@ public class HeapFileIterator implements DbFileIterator{
             if(hf.numPages() > index + 1){
                 index++;
                 t = null;
-                t = getI(index);
+                t = getIterator(index);
                 if(t.hasNext()) return t.next();
                 else{
                     throw new NoSuchElementException("end");
@@ -102,6 +100,10 @@ public class HeapFileIterator implements DbFileIterator{
         close();
         open();
     }
+
+    /**
+     * clear the iterator to null
+     */
     @Override
     public void close(){
         t = null;
