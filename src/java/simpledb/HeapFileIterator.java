@@ -29,40 +29,14 @@ public class HeapFileIterator implements DbFileIterator{
      * DataBase => BufferPool(tid,pid,perm) => get page => HeapPage Iterator<Tuple> iterator()
      * @return Iterable<Tuple>
      */
-    /*
-    public Iterator<Tuple> getI(HeapPageId pid) throws TransactionAbortedException, DbException {
-        Permissions perm = Permissions.READ_WRITE;
-        HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pid, perm);
-        //System.out.format("not null\n");
-        return hp.iterator();
-    }
     public Iterator<Tuple> getI(int id) throws TransactionAbortedException, DbException {
         Permissions perm = Permissions.READ_WRITE;
         PageId pageId = new HeapPageId(hf.getId(), id);
-        HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pid, perm);
+        HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
         //System.out.format("not null\n");
         return hp.iterator();
     }
-     */
 
-    /**
-     * Using iterator in HeapPage, reload the iterator for every page, used to check size
-     * @param id
-     * @return a list of tuple
-     * @throws TransactionAbortedException
-     * @throws DbException
-     */
-    private List<Tuple> getL(int id) throws TransactionAbortedException, DbException{
-        Permissions perm = Permissions.READ_WRITE;
-        PageId pageId = new HeapPageId(hf.getId(), id);
-        HeapPage hp =(HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
-        List<Tuple> List = new ArrayList<Tuple>();
-        Iterator<Tuple> transfer = hp.iterator();
-        while(transfer.hasNext()){
-            List.add(transfer.next());
-        }
-        return List;
-    }
 
     /**
      * open iterator and index => first page
@@ -70,7 +44,7 @@ public class HeapFileIterator implements DbFileIterator{
     @Override
     public void open() throws TransactionAbortedException, DbException {
         index = 0;
-        t = getL(index).iterator();
+        t = getI(index);
     }
 
     /**
@@ -90,7 +64,7 @@ public class HeapFileIterator implements DbFileIterator{
             //index++;
             //System.out.format("not null\n");
             //System.out.println(getT(new HeapPageId(hf.getId(), index)).hasNext());
-            return getL(index+1).size() != 0;
+            return getI(index+1).hasNext();
         }
         //System.out.format("%d %d\n",hf.numPages(),index+1);
         return false;
@@ -113,7 +87,7 @@ public class HeapFileIterator implements DbFileIterator{
             if(hf.numPages() > index + 1){
                 index++;
                 t = null;
-                t = getL(index).iterator();
+                t = getI(index);
                 if(t.hasNext()) return t.next();
                 else{
                     throw new NoSuchElementException("end");
