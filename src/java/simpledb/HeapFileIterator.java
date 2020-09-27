@@ -3,11 +3,8 @@ package simpledb;
 import java.util.*;
 
 /**
- * Returns an iterator over all the tuples stored in this DbFile. The
- * iterator must use {@link BufferPool#getPage}, rather than
- * {@link HeapFile#readPage} to iterate through the pages.
- *
- * @return an iterator over all the tuples stored in this DbFile.
+ * A helper class for iterator class HeapFile class.
+ * This class implements the DbFileIterator interface
  */
 public class HeapFileIterator implements DbFileIterator{
     private TransactionId tid;
@@ -34,9 +31,10 @@ public class HeapFileIterator implements DbFileIterator{
         HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid, pageId, perm);
         return hp.iterator();
     }
-    
+
     /**
-     * open iterator and index => first page
+     * Opens the iterator, index = 0, starting from the first page
+     * @throws DbException when there are problems opening/accessing the database.
      */
     @Override
     public void open() throws TransactionAbortedException, DbException {
@@ -91,9 +89,8 @@ public class HeapFileIterator implements DbFileIterator{
     }
 
     /**
-     * need to close it at first
-     * @throws TransactionAbortedException
-     * @throws DbException
+     * Resets the iterator to the start.
+     * @throws DbException When rewind is unsupported.
      */
     @Override
     public void rewind() throws TransactionAbortedException, DbException {
@@ -102,7 +99,7 @@ public class HeapFileIterator implements DbFileIterator{
     }
 
     /**
-     * clear the iterator to null
+     * Closes the iterator.
      */
     @Override
     public void close(){
