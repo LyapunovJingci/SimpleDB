@@ -13,6 +13,7 @@ Implement the core modules required to access stored data on disk.
 
 ### Part 2 ###
 Implement the page replacement procedure in the buffer and a B+ tree index for efficient lookups and range scans.            
+
 **TODO**
 1. Implement page eviction method in BufferPool 
 2. Search in B+ tree 
