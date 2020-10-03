@@ -33,12 +33,12 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     private int pageNum;
-    private HashMap<PageId, Page> pid2page;
+    private ConcurrentHashMap<PageId, Page> pid2page;
 
     public BufferPool(int numPages) {
         // Done
         pageNum = numPages;
-        pid2page = new HashMap<>(pageNum);
+        pid2page = new ConcurrentHashMap<>(pageNum);
     }
 
     public static int getPageSize() {

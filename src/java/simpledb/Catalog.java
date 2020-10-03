@@ -23,11 +23,11 @@ public class Catalog {
      *          id2PrimaryKey String,
      *          id2name String
      */
-    private HashMap<String, Integer> name2Id;
+    private ConcurrentHashMap<String, Integer> name2Id;
 
-    private HashMap<Integer, String> id2Name;
-    private HashMap<Integer, DbFile> id2File;
-    private HashMap<Integer, String> id2Pkey;
+    private ConcurrentHashMap<Integer, String> id2Name;
+    private ConcurrentHashMap<Integer, DbFile> id2File;
+    private ConcurrentHashMap<Integer, String> id2Pkey;
 
 
     /**
@@ -36,10 +36,10 @@ public class Catalog {
      */
     public Catalog() {
         //Done
-        this.name2Id = new HashMap<>();
-        this.id2Name = new HashMap<>();
-        this.id2File = new HashMap<>();
-        this.id2Pkey = new HashMap<>();
+        this.name2Id = new ConcurrentHashMap<>();
+        this.id2Name = new ConcurrentHashMap<>();
+        this.id2File = new ConcurrentHashMap<>();
+        this.id2Pkey = new ConcurrentHashMap<>();
     }
 
     /**
@@ -89,7 +89,7 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // Done
-        if (!name2Id.containsKey(name)) throw new NoSuchElementException();
+        if (name == null || !name2Id.containsKey(name)) throw new NoSuchElementException();
         return name2Id.get(name);
     }
 
