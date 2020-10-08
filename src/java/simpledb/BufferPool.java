@@ -172,9 +172,11 @@ public class BufferPool {
          *     break simpledb if running in NO STEAL mode.
          */
         public synchronized void flushAllPages() throws IOException {
-            // some code goes here
-            // not necessary for lab1
-
+            // use for each to flush all page
+            for(PageId pid : pid2page.keySet()){
+                //pid2page.remove(pid);
+                flushPage(pid);
+            }
         }
 
         /** Remove the specific page id from the buffer pool.
@@ -192,11 +194,18 @@ public class BufferPool {
 
         /**
          * Flushes a certain page to disk
+         * flushPage should write any dirty page to disk and mark it as not dirty,
+         * while leaving it in the BufferPool.
          * @param pid an ID indicating the page to flush
          */
         private synchronized  void flushPage(PageId pid) throws IOException {
             // some code goes here
             // not necessary for lab1
+            Page page = pid2page.get(pid);
+            //TransactionId tid =
+            HeapFile heapFile = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
+            heapFile.writePage(page);
+            page.markDirty(false, null);
         }
 
         /** Write all pages of the specified transaction to disk.
@@ -212,7 +221,14 @@ public class BufferPool {
          */
         private synchronized  void evictPage() throws DbException {
             // some code goes here
-            // not necessary for lab1
+            // delete the first one
+            PageId i = null;
+            for(PageId pid: pid2page.keySet()){
+                i = pid;
+                break;
+            }
+            pid2page.remove(i);
+            // delete the last recent use one?
         }
 
     }
