@@ -145,6 +145,13 @@ public class BufferPool {
         throws DbException, IOException, TransactionAbortedException {
             // some code goes here
             // not necessary for lab1
+            // Lock acquisition is not needed for lab2
+            // 就mark dirty就完了？？？？
+            ArrayList<Page> pages = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid,t);
+            for (Page page : pages){
+                page.markDirty(true,tid);
+            }
+
         }
 
         /**
@@ -164,6 +171,10 @@ public class BufferPool {
         throws DbException, IOException, TransactionAbortedException {
             // some code goes here
             // not necessary for lab1
+            // tuple => recordid => pid => tableId
+            int tableId = t.getRecordId().getPageId().getTableId();
+            HeapFile hpf = (HeapFile) Database.getCatalog().getDatabaseFile(tableId);
+            hpf.deleteTuple(tid, t);
         }
 
         /**
@@ -190,6 +201,7 @@ public class BufferPool {
         public synchronized void discardPage(PageId pid) {
             // some code goes here
             // not necessary for lab1
+            pid2page.remove(pid);
         }
 
         /**
@@ -219,15 +231,16 @@ public class BufferPool {
          * Discards a page from the buffer pool.
          * Flushes the page to disk to ensure dirty pages are updated on disk.
          */
-        private synchronized  void evictPage() throws DbException {
+        private synchronized  void evictPage() throws DbException, IOException {
             // some code goes here
             // delete the first one
-            PageId i = null;
             for(PageId pid: pid2page.keySet()){
-                i = pid;
+                if(pid2page.get(pid).isDirty() != null) continue;
+                flushPage(pid);
+                pid2page.remove(pid);
                 break;
             }
-            pid2page.remove(i);
+
             // delete the last recent use one?
         }
 
