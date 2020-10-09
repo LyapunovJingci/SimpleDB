@@ -76,8 +76,12 @@ public class BufferPool {
         if (pid2page.containsKey(pid)) {
             return pid2page.get(pid);
         } else {
-            HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
-            HeapPage page = (HeapPage) hf.readPage(pid);
+            /*
+            * 这里因为类型cast导致B+树test过不去，这里取消类型cast，原代码如下
+            * */
+//            HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
+//            HeapPage page = (HeapPage) hf.readPage(pid);
+            Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
             pid2page.put(pid,page);
             return page;
         }
