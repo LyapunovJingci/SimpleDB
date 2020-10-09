@@ -18,10 +18,9 @@ Implement the page replacement procedure in the buffer and a B+ tree index for e
 1. Implement page eviction method in BufferPool 
 2. Search in B+ tree     :heavy_check_mark:
 3. Insert in B+ tree 
-4. Implement page splitting 
-5. Delete in B+ tree
-6. Implement page redistributing
-7. Implement page merging
+4. Delete in B+ tree
+5. Implement page redistributing
+6. Implement page merging
 
 
 ## ✍️ Collaborators ##
