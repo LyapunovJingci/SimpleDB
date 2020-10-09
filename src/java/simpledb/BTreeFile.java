@@ -276,8 +276,52 @@ public class BTreeFile implements DbFile {
 		// the new entry.  getParentWithEmtpySlots() will be useful here.  Don't forget to update
 		// the sibling pointers of all the affected leaf pages.  Return the page into which a 
 		// tuple with the given key field should be inserted.
-        return null;
-		
+
+		BTreeLeafPage newLeafPage = (BTreeLeafPage) getEmptyPage(tid, dirtypages, BTreePageId.LEAF);
+		Iterator<Tuple> reverseIterator = page.reverseIterator();
+		int oldLeafSize = page.getNumTuples();
+		int newLeafSize = (oldLeafSize + 1) / 2;
+		Tuple midTuple = null;
+
+		//split
+		for (int i = 0; i < newLeafSize; i++) {
+			if (reverseIterator.hasNext()) {
+				midTuple = reverseIterator.next();
+				page.deleteTuple(midTuple);
+				newLeafPage.insertTuple(midTuple);
+			}
+		}
+		if (midTuple == null) {
+			throw new DbException("invalid entry");
+		}
+		BTreeInternalPage parentPage = getParentWithEmptySlots(tid, dirtypages, page.getParentId(), midTuple.getField(keyField));
+		BTreePageId oldRightSibId = page.getRightSiblingId();
+
+		//left side
+		newLeafPage.setLeftSiblingId(page.getId());
+		page.setRightSiblingId(newLeafPage.getId());
+		dirtypages.put(page.getId(), page);
+		dirtypages.put(newLeafPage.getId(), newLeafPage);
+
+		//right side
+		newLeafPage.setRightSiblingId(oldRightSibId);
+		if (oldRightSibId != null) {
+			BTreeLeafPage oldRightSib = (BTreeLeafPage) this.getPage(tid, dirtypages, oldRightSibId, Permissions.READ_WRITE);
+			oldRightSib.setLeftSiblingId(newLeafPage.getId());
+			dirtypages.put(oldRightSibId, oldRightSib);
+		}
+
+		//parent
+		newLeafPage.setParentId(parentPage.getId());
+		dirtypages.put(parentPage.getId(), parentPage);
+
+		//update entry
+		parentPage.insertEntry(new BTreeEntry(midTuple.getField(keyField), page.getId(), newLeafPage.getId()));
+
+		if (field.compare(Op.GREATER_THAN, midTuple.getField(keyField))) {
+			return newLeafPage;
+		}
+		return page;
 	}
 	
 	/**
