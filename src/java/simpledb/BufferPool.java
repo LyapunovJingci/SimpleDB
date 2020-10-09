@@ -150,6 +150,7 @@ public class BufferPool {
             ArrayList<Page> pages = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid,t);
             for (Page page : pages){
                 page.markDirty(true,tid);
+                pid2page.put(page.getId(),page);
             }
 
         }

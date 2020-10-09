@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.*;
+import java.security.Permission;
 import java.util.*;
 
 /**
@@ -73,7 +74,7 @@ public class HeapFile implements DbFile {
             RandomAccessFile file = new RandomAccessFile(f,"r");
             Page page = null;
             // the address of this page
-            int loc = pid.pageNumber() * BufferPool.getPageSize();
+            long loc = pid.pageNumber() * BufferPool.getPageSize();
             byte[] data = new byte[BufferPool.getPageSize()];
             /**
              * Returns the length of this file.
@@ -98,10 +99,26 @@ public class HeapFile implements DbFile {
         throw new NoSuchElementException();
     }
 
+    /**
+     * Push the specified page to disk.
+     *
+     * @param page The page to write.
+     *             page.getId().pageno() specifies the offset into the file where the page should be written.
+     * @throws IOException if the write fails
+     *
+     */
     // see DbFile.java for javadocs
     public void writePage(Page page) throws IOException {
         // some code goes here
         // not necessary for lab1
+        RandomAccessFile raf = new RandomAccessFile(f, "rw");
+        PageId pid = page.getId();
+        long loc = pid.pageNumber() * BufferPool.getPageSize();
+        byte[] data = new byte[BufferPool.getPageSize()];
+        data = page.getPageData();
+        raf.seek(loc);
+        raf.write(data,0,BufferPool.getPageSize());
+        raf.close();
     }
 
     /**
@@ -111,20 +128,76 @@ public class HeapFile implements DbFile {
         // Done
         return (int)Math.ceil(f.length() / (double)BufferPool.getPageSize());
     }
-
+    /**
+     * Inserts the specified tuple to the file on behalf of transaction.
+     * This method will acquire a lock on the affected pages of the file, and
+     * may block until the lock can be acquired.
+     *
+     * @param tid The transaction performing the update
+     * @param t The tuple to add.  This tuple should be updated to reflect that
+     *          it is now stored in this file.
+     * @return An ArrayList contain the pages that were modified
+     * @throws DbException if the tuple cannot be added
+     * @throws IOException if the needed file can't be read/written
+     */
     // see DbFile.java for javadocs
     public ArrayList<Page> insertTuple(TransactionId tid, Tuple t)
             throws DbException, IOException, TransactionAbortedException {
         // some code goes here
-        return null;
+        // this should be only one page?????
+        ArrayList<Page> res = new ArrayList<>();
+        ArrayList<Page> pageList = new ArrayList<>();
+        int tableId = getId();
+        // find empty page
+        for (int i=0; i<this.numPages();i++) {
+            HeapPageId pid = new HeapPageId(tableId, i);
+            Page page = Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY);
+            if (((HeapPage) page).getNumEmptySlots() != 0) {
+                pageList.add(page);
+            }
+        }
+        if(pageList.isEmpty()){
+            HeapPage hp = new HeapPage(new HeapPageId(this.getId(),this.numPages()), HeapPage.createEmptyPageData());
+            hp.insertTuple(t);
+            writePage(hp);
+            res.add(hp);
+        }
+        else{
+            HeapPage ep = (HeapPage) pageList.get(0);
+            ep.insertTuple(t);
+            writePage(ep);
+            res.add(ep);
+        }
+
+        return res;
         // not necessary for lab1
     }
-
+    /**
+     * Removes the specified tuple from the file on behalf of the specified
+     * transaction.
+     * This method will acquire a lock on the affected pages of the file, and
+     * may block until the lock can be acquired.
+     *
+     * @param tid The transaction performing the update
+     * @param t The tuple to delete.  This tuple should be updated to reflect that
+     *          it is no longer stored on any page.
+     * @return An ArrayList contain the pages that were modified
+     * @throws DbException if the tuple cannot be deleted or is not a member
+     *   of the file
+     */
     // see DbFile.java for javadocs
     public ArrayList<Page> deleteTuple(TransactionId tid, Tuple t) throws DbException,
             TransactionAbortedException {
         // some code goes here
-        return null;
+        // t => pid + tid + BufferPool => page => delete
+        // no sure block feasible...
+        // this should be only one page?????
+        PageId pid = t.getRecordId().getPageId();
+        HeapPage hp = (HeapPage) Database.getBufferPool().getPage(tid,pid,Permissions.READ_WRITE);
+        hp.deleteTuple(t);
+        ArrayList<Page> res = new ArrayList<>();
+        res.add(Database.getBufferPool().getPage(tid,pid,Permissions.READ_WRITE));
+        return res;
         // not necessary for lab1
     }
 

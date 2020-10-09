@@ -242,6 +242,16 @@ public class HeapPage implements Page {
     public void deleteTuple(Tuple t) throws DbException {
         // some code goes here
         // not necessary for lab1
+        RecordId rid = t.getRecordId();
+        if(rid.getPageId() != this.pid){
+            throw new DbException("not on this page");
+        }
+        if(!isSlotUsed(rid.tupleno())){
+            throw new DbException("slot is already empty");
+        }
+        // clear the value and mark as not used
+        tuples[rid.tupleno()] = null;
+        markSlotUsed(rid.tupleno(),false);
     }
 
     /**
@@ -254,6 +264,27 @@ public class HeapPage implements Page {
     public void insertTuple(Tuple t) throws DbException {
         // some code goes here
         // not necessary for lab1
+        if (getNumEmptySlots() == 0) {
+            throw new DbException("page is full");
+        }
+        if (!t.getTupleDesc().equals(td)) {
+            throw new DbException("tupleDesc is mismatch");
+        }
+        int next = -1;
+        for (int i = 0; i < header.length*8; i++){
+            if (!isSlotUsed(i)){
+                next = i;
+                break;
+            }
+        }
+        if(next == -1) {
+            throw new DbException("all used");
+        }
+        RecordId rid = new RecordId(pid, next);
+        t.setRecordId(rid);
+        tuples[next] = t;
+        markSlotUsed(next,true);
+
     }
 
     /**
@@ -263,6 +294,7 @@ public class HeapPage implements Page {
     public void markDirty(boolean dirty, TransactionId tid) {
         // some code goes here
         // not necessary for lab1
+
     }
 
     /**
@@ -306,6 +338,15 @@ public class HeapPage implements Page {
     private void markSlotUsed(int i, boolean value) {
         // some code goes here
         // not necessary for lab1
+        // 我看了一晚上总觉得上周写的不对。。。
+        int Byte = i / 8;
+        int Bit = i % 8;
+        if(value == true){
+
+        }
+        else{
+
+        }
     }
 
     /**
