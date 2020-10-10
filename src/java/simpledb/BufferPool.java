@@ -74,42 +74,21 @@ public class BufferPool {
             throws TransactionAbortedException, DbException {
         //Done
         //Page page;
-        synchronized (this){
+        synchronized (this) {
             if (pid2page.containsKey(pid)) {
                 return pid2page.get(pid);
             }
-            else{
-                HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
-                //HeapPage hp = (HeapPage) hf.readPage(pid);
-                Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
-                if (pid2page.size() == this.pageNum) {
-                    try {
-                        evictPage();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                pid2page.put(pid,page);
-                return page;
-            }
-        }
-/*
-        if (pid2page.containsKey(pid)) {
-            return pid2page.get(pid);
-        } else {
-            /*
-            * 这里因为类型cast导致B+树test过不去，这里取消类型cast，原代码如下
-            /
-//            HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
-//            HeapPage page = (HeapPage) hf.readPage(pid);
             Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
-            pid2page.put(pid,page);
-            if (pageNum <= pid2page.size()){
-                //will have to deal with eviction here
-                evictPage();
+            if (pid2page.size() == this.pageNum) {
+                try {
+                    evictPage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+            pid2page.put(pid,page);
             return page;
-        }*/
+        }
     }
         /**
          * Releases the lock on a page.
@@ -175,13 +154,12 @@ public class BufferPool {
             // some code goes here
             // not necessary for lab1
             // Lock acquisition is not needed for lab2
-            // 就mark dirty就完了？？？？
             ArrayList<Page> pages = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid,t);
             for (Page page : pages){
                 page.markDirty(true,tid);
+                pid2page.remove(page.getId());
                 pid2page.put(page.getId(),page);
             }
-
         }
 
         /**
@@ -203,8 +181,7 @@ public class BufferPool {
             // not necessary for lab1
             // tuple => recordid => pid => tableId
             int tableId = t.getRecordId().getPageId().getTableId();
-            HeapFile hpf = (HeapFile) Database.getCatalog().getDatabaseFile(tableId);
-            hpf.deleteTuple(tid, t);
+            Database.getCatalog().getDatabaseFile(tableId).deleteTuple(tid, t);
         }
 
         /**
@@ -240,13 +217,11 @@ public class BufferPool {
          * while leaving it in the BufferPool.
          * @param pid an ID indicating the page to flush
          */
-        private synchronized  void flushPage(PageId pid) throws IOException {
+        private synchronized void flushPage(PageId pid) throws IOException {
             // some code goes here
             // not necessary for lab1
             Page page = pid2page.get(pid);
-            //TransactionId tid =
-            HeapFile heapFile = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
-            heapFile.writePage(page);
+            Database.getCatalog().getDatabaseFile(pid.getTableId()).writePage(page);
             page.markDirty(false, null);
         }
 
