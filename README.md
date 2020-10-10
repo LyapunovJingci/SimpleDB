@@ -15,7 +15,7 @@ Implement the core modules required to access stored data on disk.
 Implement the page replacement procedure in the buffer and a B+ tree index for efficient lookups and range scans.            
 
 **TODO**
-1. Implement page eviction method in BufferPool 
+1. Implement page eviction method in BufferPool   :heavy_check_mark:
 2. Search in B+ tree     :heavy_check_mark:
 3. Insert in B+ tree     :heavy_check_mark:
 4. Delete in B+ tree
