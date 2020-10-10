@@ -73,18 +73,43 @@ public class BufferPool {
     public Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
         //Done
+        //Page page;
+        synchronized (this){
+            if (pid2page.containsKey(pid)) {
+                return pid2page.get(pid);
+            }
+            else{
+                HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
+                //HeapPage hp = (HeapPage) hf.readPage(pid);
+                Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
+                if (pid2page.size() == this.pageNum) {
+                    try {
+                        evictPage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                pid2page.put(pid,page);
+                return page;
+            }
+        }
+/*
         if (pid2page.containsKey(pid)) {
             return pid2page.get(pid);
         } else {
             /*
             * 这里因为类型cast导致B+树test过不去，这里取消类型cast，原代码如下
-            * */
+            /
 //            HeapFile hf = (HeapFile) Database.getCatalog().getDatabaseFile(pid.getTableId());
 //            HeapPage page = (HeapPage) hf.readPage(pid);
             Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
             pid2page.put(pid,page);
+            if (pageNum <= pid2page.size()){
+                //will have to deal with eviction here
+                evictPage();
+            }
             return page;
-        }
+        }*/
     }
         /**
          * Releases the lock on a page.
@@ -239,13 +264,20 @@ public class BufferPool {
         private synchronized  void evictPage() throws DbException, IOException {
             // some code goes here
             // delete the first one
+            //System.out.println(1);
             for(PageId pid: pid2page.keySet()){
                 if(pid2page.get(pid).isDirty() != null) continue;
-                flushPage(pid);
+                try {
+                    flushPage(pid);
+                } catch (IOException e) {
+                    throw new DbException(e.getMessage());
+                }
                 pid2page.remove(pid);
-                break;
+                int p = pid.getTableId();
+                //System.out.println(p);
+                return;
             }
-
+            throw new DbException("all pages in the buffer pool are dirty");
             // delete the last recent use one?
         }
 
