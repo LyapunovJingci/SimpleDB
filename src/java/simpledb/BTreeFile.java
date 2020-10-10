@@ -350,7 +350,46 @@ public class BTreeFile implements DbFile {
 			BTreeInternalPage page, Field field) 
 					throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
-		return null;
+
+		BTreeInternalPage newInternalPage = (BTreeInternalPage) getEmptyPage(tid, dirtypages, BTreePageId.INTERNAL);
+		Iterator<BTreeEntry> reverseIterator = page.reverseIterator();
+		int oldPageSize = page.getNumEntries();
+		int newPageSize = (oldPageSize + 1) / 2;
+		BTreeEntry midEntry = null;
+
+		//split
+		for (int i = 0; i < newPageSize; i++) {
+			if (reverseIterator.hasNext()) {
+				midEntry = reverseIterator.next();
+				page.deleteKeyAndRightChild(midEntry);
+				if (i == newPageSize - 1) {
+					continue;
+				}
+				newInternalPage.insertEntry(midEntry);
+				updateParentPointer(tid, dirtypages, newInternalPage.getId(), midEntry.getRightChild());
+			}
+		}
+
+		if (midEntry == null) {
+			throw new DbException("invalid entry");
+		}
+
+		//children
+		midEntry.setLeftChild(page.getId());
+		midEntry.setRightChild(newInternalPage.getId());
+		dirtypages.put(page.getId(), page);
+		dirtypages.put(newInternalPage.getId(), newInternalPage);
+
+		//parent
+		BTreeInternalPage parent = getParentWithEmptySlots(tid, dirtypages, page.getParentId(), midEntry.getKey());
+		parent.insertEntry(midEntry);
+		newInternalPage.setParentId(parent.getId());
+		dirtypages.put(parent.getId(), parent);
+
+		if (field.compare(Op.GREATER_THAN, midEntry.getKey())) {
+			return newInternalPage;
+		}
+		return page;
 	}
 	
 	/**
