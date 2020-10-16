@@ -687,6 +687,7 @@ public class BTreeFile implements DbFile {
 		// the corresponding parent entry.
 		// if right, save in sibling and iterator from left, else save in page and iterator from right
 		int length = (sibling.getNumTuples() + page.getNumTuples()) / 2;
+		// BTreeLeafPage tmpPage = isRightSibling ? sibling : page;
 		if(isRightSibling){
 			// BTreeLeafPage tmpPage = sibling;
 			Iterator<Tuple> tmpIterator = sibling.iterator();
@@ -715,7 +716,8 @@ public class BTreeFile implements DbFile {
 				}
 			}
 		}
-		// 我觉得我这更新好像不对
+		// 我觉得我这更新好像不对，next空了
+		// Tuple t = tmpPage.iterator().next();
 		Tuple t = isRightSibling ? sibling.iterator().next() : page.iterator().next();
 		entry.setKey(t.getField(keyField));
 		parent.updateEntry(entry);
