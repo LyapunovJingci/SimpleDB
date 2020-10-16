@@ -681,10 +681,44 @@ public class BTreeFile implements DbFile {
 	protected void stealFromLeafPage(BTreeLeafPage page, BTreeLeafPage sibling,
 			BTreeInternalPage parent, BTreeEntry entry, boolean isRightSibling) throws DbException {
 		// some code goes here
-        //
+        // sibling.page => page.page
         // Move some of the tuples from the sibling to the page so
 		// that the tuples are evenly distributed. Be sure to update
 		// the corresponding parent entry.
+		// if right, save in sibling and iterator from left, else save in page and iterator from right
+		int length = (sibling.getNumTuples() + page.getNumTuples()) / 2;
+		if(isRightSibling){
+			// BTreeLeafPage tmpPage = sibling;
+			Iterator<Tuple> tmpIterator = sibling.iterator();
+			for(int i = 0; i < length; i++){
+				if(tmpIterator.hasNext()){
+					Tuple tuple = tmpIterator.next();
+					page.insertTuple(tuple);
+					sibling.deleteTuple(tuple);
+				}
+				else{
+					throw new DbException("length error");
+				}
+			}
+		}
+		else{
+			// BTreeLeafPage tmpPage = page;
+			Iterator<Tuple> tmpIterator = sibling.reverseIterator();
+			for(int i = 0; i < length; i++){
+				if(tmpIterator.hasNext()){
+					Tuple tuple = tmpIterator.next();
+					page.insertTuple(tuple);
+					sibling.deleteTuple(tuple);
+				}
+				else{
+					throw new DbException("length error");
+				}
+			}
+		}
+		// 我觉得我这更新好像不对
+		Tuple t = isRightSibling ? sibling.iterator().next() : page.iterator().next();
+		entry.setKey(t.getField(keyField));
+		parent.updateEntry(entry);
 	}
 
 	/**
