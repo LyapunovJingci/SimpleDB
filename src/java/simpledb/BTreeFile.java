@@ -210,18 +210,17 @@ public class BTreeFile implements DbFile {
 		BTreeEntry bTreeEntry = internalIterator.next();
 
 		if (f == null) {
+			return findLeafPage(tid, dirtypages, bTreeEntry.getLeftChild(), perm, f);
+		}
+
+		while (internalIterator.hasNext() && f.compare(Op.GREATER_THAN, bTreeEntry.getKey())) {
+			bTreeEntry = internalIterator.next();
+		}
+
+		if (f.compare(Op.LESS_THAN_OR_EQ, bTreeEntry.getKey())) {
 			newPid = bTreeEntry.getLeftChild();
 		} else {
-			while (internalIterator.hasNext() && f.compare(Op.GREATER_THAN, bTreeEntry.getKey())) {
-				bTreeEntry = internalIterator.next();
-			}
-
-
-			if (f.compare(Op.LESS_THAN_OR_EQ, bTreeEntry.getKey())) {
-				newPid = bTreeEntry.getLeftChild();
-			} else {
-				newPid = bTreeEntry.getRightChild();
-			}
+			newPid = bTreeEntry.getRightChild();
 		}
 
         return findLeafPage(tid, dirtypages, newPid, perm, f);
@@ -686,41 +685,60 @@ public class BTreeFile implements DbFile {
 		// that the tuples are evenly distributed. Be sure to update
 		// the corresponding parent entry.
 		// if right, save in sibling and iterator from left, else save in page and iterator from right
+
+
 		int length = (sibling.getNumTuples() - page.getNumTuples()) / 2;
-		// BTreeLeafPage tmpPage = isRightSibling ? sibling : page;
-		if(isRightSibling){
-			// BTreeLeafPage tmpPage = sibling;
-			Iterator<Tuple> tmpIterator = sibling.iterator();
-			for(int i = 0; i < length; i++){
-				if(tmpIterator.hasNext()){
-					Tuple tuple = tmpIterator.next();
-					page.insertTuple(tuple);
-					sibling.deleteTuple(tuple);
-				}
-				else{
-					throw new DbException("length error");
-				}
+		BTreeLeafPage localPage = isRightSibling ? sibling : page;
+		Iterator<Tuple> localIterator = isRightSibling ? sibling.iterator() : sibling.reverseIterator();
+		for(int i = 0; i < length; i++){
+			if(localIterator.hasNext()){
+				Tuple tuple = localIterator.next();
+				sibling.deleteTuple(tuple);
+				page.insertTuple(tuple);
+			}
+			else {
+				throw new DbException("length error");
 			}
 		}
-		else{
-			// BTreeLeafPage tmpPage = page;
-			Iterator<Tuple> tmpIterator = sibling.reverseIterator();
-			for(int i = 0; i < length; i++){
-				if(tmpIterator.hasNext()){
-					Tuple tuple = tmpIterator.next();
-					page.insertTuple(tuple);
-					sibling.deleteTuple(tuple);
-				}
-				else{
-					throw new DbException("length error");
-				}
-			}
+		if (localPage.getNumTuples() > 0) {
+			entry.setKey(localIterator.next().getField(keyField));
+ 			parent.updateEntry(entry);
 		}
-		// 我觉得我这更新好像不对，next空了
-		// Tuple t = tmpPage.iterator().next();
-		Tuple t = isRightSibling ? sibling.iterator().next() : page.iterator().next();
-		entry.setKey(t.getField(keyField));
-		parent.updateEntry(entry);
+
+//		// BTreeLeafPage tmpPage = isRightSibling ? sibling : page;
+//		if(isRightSibling){
+//			// BTreeLeafPage tmpPage = sibling;
+//			Iterator<Tuple> tmpIterator = sibling.iterator();
+//			for(int i = 0; i < length; i++){
+//				if(tmpIterator.hasNext()){
+//					Tuple tuple = tmpIterator.next();
+//					page.insertTuple(tuple);
+//					sibling.deleteTuple(tuple);
+//				}
+//				else{
+//					throw new DbException("length error");
+//				}
+//			}
+//		}
+//		else{
+//			// BTreeLeafPage tmpPage = page;
+//			Iterator<Tuple> tmpIterator = sibling.reverseIterator();
+//			for(int i = 0; i < length; i++){
+//				if(tmpIterator.hasNext()){
+//					Tuple tuple = tmpIterator.next();
+//					page.insertTuple(tuple);
+//					sibling.deleteTuple(tuple);
+//				}
+//				else{
+//					throw new DbException("length error");
+//				}
+//			}
+//		}
+//		// 我觉得我这更新好像不对，next空了
+//		// Tuple t = tmpPage.iterator().next();
+//		Tuple t = isRightSibling ? sibling.iterator().next() : page.iterator().next();
+//		entry.setKey(t.getField(keyField));
+//		parent.updateEntry(entry);
 	}
 
 	/**
