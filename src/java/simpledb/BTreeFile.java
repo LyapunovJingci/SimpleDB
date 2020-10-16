@@ -926,6 +926,19 @@ public class BTreeFile implements DbFile {
 		// the sibling pointers, and make the right page available for reuse.
 		// Delete the entry in the parent corresponding to the two pages that are merging -
 		// deleteParentEntry() will be useful here
+		Iterator<Tuple> iterator = rightPage.iterator();
+		// Merge two leaf pages by moving all tuples from the right page to the left page.
+		while(iterator.hasNext()){
+			Tuple t = iterator.next();
+			rightPage.deleteTuple(t);
+			leftPage.insertTuple(t);
+		}
+		// Delete the corresponding key and right child pointer from the parent, and recursively
+		leftPage.setRightSiblingId(rightPage.getRightSiblingId());
+		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
+		// handle the case when the parent gets below minimum occupancy.(?)
+		// Update sibling pointers as needed, and make the right page available for reuse.
+		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 	}
 
 	/**
@@ -959,6 +972,20 @@ public class BTreeFile implements DbFile {
 		// and make the right page available for reuse
 		// Delete the entry in the parent corresponding to the two pages that are merging -
 		// deleteParentEntry() will be useful here
+		Iterator<BTreeEntry> iterator = rightPage.iterator();
+		// and "pulling down" the corresponding key from the parent entry.
+		// I think the key should be saved between two page, so this step should happen before merge
+		leftPage.insertEntry(new BTreeEntry(parentEntry.getKey(),leftPage.reverseIterator().next().getRightChild(), rightPage.iterator().next().getLeftChild()));
+		while(iterator.hasNext()){
+			BTreeEntry nextEntry = iterator.next();
+			rightPage.deleteKeyAndLeftChild(nextEntry);
+			leftPage.insertEntry(nextEntry);
+		}
+		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
+		updateParentPointers(tid, dirtypages, leftPage);
+		updateParentPointers(tid, dirtypages, parent);
+
+		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 	}
 	
 	/**
