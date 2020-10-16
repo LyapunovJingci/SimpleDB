@@ -686,7 +686,7 @@ public class BTreeFile implements DbFile {
 		// that the tuples are evenly distributed. Be sure to update
 		// the corresponding parent entry.
 		// if right, save in sibling and iterator from left, else save in page and iterator from right
-		int length = (sibling.getNumTuples() + page.getNumTuples()) / 2;
+		int length = (sibling.getNumTuples() - page.getNumTuples()) / 2;
 		// BTreeLeafPage tmpPage = isRightSibling ? sibling : page;
 		if(isRightSibling){
 			// BTreeLeafPage tmpPage = sibling;
@@ -797,6 +797,33 @@ public class BTreeFile implements DbFile {
 			BTreeInternalPage page, BTreeInternalPage leftSibling, BTreeInternalPage parent,
 			BTreeEntry parentEntry) throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
+		//updateParentPointer(tid,dirtypages, parent.pid, );
+		int length = (leftSibling.getNumEntries() - page.getNumEntries()) / 2;
+		//from right to left
+		Iterator<BTreeEntry> tmpIterator = leftSibling.reverseIterator();
+		BTreeEntry tmpParent = parentEntry;
+		BTreeEntry tmpRight = page.iterator().next();
+
+		for(int i = 0; i < length; i++){
+			// parent => right, left => parent
+			//
+			BTreeEntry nextEntry = tmpIterator.next();
+
+			parent.deleteKeyAndRightChild(tmpParent);
+			tmpParent.setLeftChild(nextEntry.getRightChild());
+			tmpParent.setRightChild(tmpRight.getLeftChild());
+			page.updateEntry(tmpParent);
+
+			leftSibling.deleteKeyAndRightChild(nextEntry);
+			nextEntry.setLeftChild(leftSibling.getId());
+			nextEntry.setRightChild(page.getId());
+			parent.insertEntry(nextEntry);
+
+			// loop
+			tmpRight = tmpParent;
+			tmpParent = nextEntry;
+		}
+		updateParentPointers(tid, dirtypages, page);
 	}
 	
 	/**
