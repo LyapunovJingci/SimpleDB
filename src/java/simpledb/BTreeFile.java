@@ -852,6 +852,32 @@ public class BTreeFile implements DbFile {
 		// that the entries are evenly distributed. Be sure to update
 		// the corresponding parent entry. Be sure to update the parent
 		// pointers of all children in the entries that were moved.
+		int length = (rightSibling.getNumEntries() - page.getNumEntries()) / 2;
+		//from right to left
+		Iterator<BTreeEntry> tmpIterator = rightSibling.iterator();
+		BTreeEntry tmpParent = parentEntry;
+		BTreeEntry tmpLeft = page.reverseIterator().next();
+
+		for(int i = 0; i < length; i++){
+			// parent => left, right => parent
+			//
+			BTreeEntry nextEntry = tmpIterator.next();
+
+			parent.deleteKeyAndLeftChild(tmpParent);
+			tmpParent.setRightChild(nextEntry.getLeftChild());
+			tmpParent.setLeftChild(tmpLeft.getRightChild());
+			page.updateEntry(tmpParent);
+
+			rightSibling.deleteKeyAndLeftChild(nextEntry);
+			nextEntry.setRightChild(rightSibling.getId());
+			nextEntry.setLeftChild(page.getId());
+			parent.insertEntry(nextEntry);
+
+			// loop
+			tmpLeft = tmpParent;
+			tmpParent = nextEntry;
+		}
+		updateParentPointers(tid, dirtypages, page);
 	}
 	
 	/**
