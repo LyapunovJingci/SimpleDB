@@ -239,17 +239,13 @@ public class BufferPool {
         private synchronized  void evictPage() throws DbException, IOException {
             // some code goes here
             // delete the first one
-            //System.out.println(1);
             for(PageId pid: pid2page.keySet()){
-                if(pid2page.get(pid).isDirty() != null) continue;
                 try {
                     flushPage(pid);
                 } catch (IOException e) {
                     throw new DbException(e.getMessage());
                 }
                 pid2page.remove(pid);
-                int p = pid.getTableId();
-                //System.out.println(p);
                 return;
             }
             throw new DbException("all pages in the buffer pool are dirty");
