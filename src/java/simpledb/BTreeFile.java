@@ -980,19 +980,27 @@ public class BTreeFile implements DbFile {
 		// and make the right page available for reuse
 		// Delete the entry in the parent corresponding to the two pages that are merging -
 		// deleteParentEntry() will be useful here
-		Iterator<BTreeEntry> iterator = rightPage.iterator();
-		// and "pulling down" the corresponding key from the parent entry.
-		// I think the key should be saved between two page, so this step should happen before merge
-		leftPage.insertEntry(new BTreeEntry(parentEntry.getKey(),leftPage.reverseIterator().next().getRightChild(), rightPage.iterator().next().getLeftChild()));
-		while(iterator.hasNext()){
-			BTreeEntry nextEntry = iterator.next();
-			rightPage.deleteKeyAndLeftChild(nextEntry);
-			leftPage.insertEntry(nextEntry);
-		}
-		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
-		updateParentPointers(tid, dirtypages, leftPage);
-		updateParentPointers(tid, dirtypages, parent);
 
+		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
+		BTreePageId rightChild = rightPage.iterator().next().getLeftChild();
+		parentEntry.setRightChild(rightChild);
+		leftPage.insertEntry(parentEntry);
+
+		int length = rightPage.getNumEntries();
+		Iterator<BTreeEntry> localIterator = rightPage.iterator();
+		for (int i = 0; i < length; i++) {
+			if (localIterator.hasNext()) {
+				BTreeEntry localEntry = localIterator.next();
+				rightPage.deleteKeyAndRightChild(localEntry);
+				updateParentPointer(tid, dirtypages, leftPage.getId(), localEntry.getLeftChild());
+				updateParentPointer(tid, dirtypages, leftPage.getId(), localEntry.getRightChild());
+				leftPage.insertEntry(localEntry);
+			}
+		}
+
+		dirtypages.put(leftPage.getId(), leftPage);
+
+		//available to reuse
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 	}
 	
