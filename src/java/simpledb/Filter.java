@@ -38,11 +38,13 @@ public class Filter extends Operator {
     public void open() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
+        super.open();
         child.open();
     }
 
     public void close() {
         // some code goes here
+        super.close();
         child.close();
     }
 
@@ -64,8 +66,9 @@ public class Filter extends Operator {
             TransactionAbortedException, DbException {
         // some code goes here
         while (child.hasNext()) {
-            if (p.filter(child.next())) {
-                return child.next();
+            Tuple tuple = child.next();
+            if (p.filter(tuple)) {
+                return tuple;
             }
         }
         return null;
