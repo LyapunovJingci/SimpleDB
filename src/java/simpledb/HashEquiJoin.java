@@ -12,7 +12,8 @@ public class HashEquiJoin extends Operator {
     private DbIterator child1;
     private DbIterator child2;
     private TupleDesc tupleDesc;
-    private Tuple tuple;
+    private Tuple tuple1;
+    private Tuple tuple2;
 
     /**
      * Constructor. Accepts to children to join and the predicate to join them
@@ -30,6 +31,7 @@ public class HashEquiJoin extends Operator {
         this.p = p;
         this.child1 = child1;
         this.child2 = child2;
+        tupleDesc = TupleDesc.merge(child1.getTupleDesc(), child2.getTupleDesc());
     }
 
     public JoinPredicate getJoinPredicate() {
@@ -39,7 +41,7 @@ public class HashEquiJoin extends Operator {
 
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return tupleDesc;
     }
     
     public String getJoinField1Name()
@@ -60,6 +62,12 @@ public class HashEquiJoin extends Operator {
         super.open();
         child1.open();
         child2.open();
+        if (child1.hasNext()) {
+            tuple1 = child1.next();
+        }
+        if (child2.hasNext()) {
+            tuple2 = child2.next();
+        }
     }
 
     public void close() {
@@ -67,12 +75,14 @@ public class HashEquiJoin extends Operator {
         child1.close();
         child2.close();
         super.close();
+        tuple1 = null;
+        tuple2 = null;
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
-        child1.rewind();
-        child2.rewind();
+        this.close();
+        this.open();
     }
 
     transient Iterator<Tuple> listIt = null;
@@ -97,6 +107,8 @@ public class HashEquiJoin extends Operator {
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
         // some code goes here
+        //TODO: Hash join
+        //copy code from Join.java could also pass the test
         return null;
     }
 
