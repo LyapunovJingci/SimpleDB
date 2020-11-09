@@ -12,7 +12,8 @@ public class Join extends Operator {
     private DbIterator child1;
     private DbIterator child2;
     private TupleDesc tupleDesc;
-    private Tuple tuple;
+    private Tuple tuple1;
+    private Tuple tuple2;
     /**
      * Constructor. Accepts to children to join and the predicate to join them
      * on
@@ -72,7 +73,12 @@ public class Join extends Operator {
         super.open();
         child1.open();
         child2.open();
-        tuple = null;
+        if (child1.hasNext()) {
+            tuple1 = child1.next();
+        }
+        if (child2.hasNext()) {
+            tuple2 = child2.next();
+        }
     }
 
     public void close() {
@@ -80,13 +86,14 @@ public class Join extends Operator {
         super.close();
         child1.close();
         child2.close();
-        tuple = null;
+        tuple1 = null;
+        tuple2 = null;
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
-        child1.rewind();
-        child2.rewind();
+        this.close();
+        this.open();
 
     }
 
@@ -110,9 +117,57 @@ public class Join extends Operator {
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
         // some code goes here
+        while (tuple1 != null && tuple2 != null) {
+            Tuple mergedTuple = null;
+            if (p.filter(tuple1, tuple2)) {
+                mergedTuple = mergeTuples(tuple1, tuple2);
+            }
+
+            if (child1.hasNext() && child2.hasNext()) {
+                tuple1 = child1.next();
+                tuple2 = child2.next();
+            } else if (child1.hasNext()) {
+                tuple1 = child1.next();
+                child2.rewind();
+                if (child2.hasNext()) {
+                    tuple2 = child2.next();
+                }
+            } else if (child2.hasNext()) {
+                tuple2 = child2.next();
+                child1.rewind();
+                if (child1.hasNext()) {
+                    tuple1 = child1.next();
+                }
+            } else {
+                tuple1 = null;
+                tuple2 = null;
+            }
 
 
+            if (mergedTuple != null) {
+                return mergedTuple;
+            }
+        }
         return null;
+    }
+
+    private Tuple mergeTuples(Tuple t1, Tuple t2) {
+        Tuple mergedT = new Tuple(this.getTupleDesc());
+        int size1 = t1.getTupleDesc().numFields();
+        int size2 = t2.getTupleDesc().numFields();
+        if (size1 + size2 != mergedT.getTupleDesc().numFields()) {
+            return null;
+        }
+        int i = 0;
+        while (i < size1) {
+            mergedT.setField(i, t1.getField(i));
+            i++;
+        }
+        while (i < size1 + size2) {
+            mergedT.setField(i, t2.getField(i - size1));
+            i++;
+        }
+        return mergedT;
     }
 
     @Override
