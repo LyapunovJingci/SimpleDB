@@ -14,11 +14,12 @@ public class HashEquiJoin extends Operator {
     private TupleDesc tupleDesc;
     private Tuple tuple1;
     private Tuple tuple2;
+    private HashMap<Field, ArrayList<Tuple>> map = new HashMap<>();
 
     /**
      * Constructor. Accepts to children to join and the predicate to join them
      * on
-     * 
+     *
      * @param p
      *            The predicate to use to join the children
      * @param child1
@@ -31,7 +32,7 @@ public class HashEquiJoin extends Operator {
         this.p = p;
         this.child1 = child1;
         this.child2 = child2;
-        tupleDesc = TupleDesc.merge(child1.getTupleDesc(), child2.getTupleDesc());
+        this.tupleDesc = TupleDesc.merge(child1.getTupleDesc(), child2.getTupleDesc());
     }
 
     public JoinPredicate getJoinPredicate() {
@@ -43,7 +44,7 @@ public class HashEquiJoin extends Operator {
         // some code goes here
         return tupleDesc;
     }
-    
+
     public String getJoinField1Name()
     {
         // some code goes here
@@ -55,19 +56,22 @@ public class HashEquiJoin extends Operator {
         // some code goes here
         return child2.getTupleDesc().getFieldName(p.getField2());
     }
-    
+
     public void open() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
-        super.open();
+
         child1.open();
         child2.open();
-        if (child1.hasNext()) {
-            tuple1 = child1.next();
+        while(child2.hasNext()){
+            Tuple t = child2.next();
+            Field key = t.getField(p.getField2());
+            if(!map.containsKey(key)) map.put(key,new ArrayList<>());
+            ArrayList<Tuple> block = map.get(key);
+            block.add(t);
         }
-        if (child2.hasNext()) {
-            tuple2 = child2.next();
-        }
+        //scanChild();
+        super.open();
     }
 
     public void close() {
@@ -77,12 +81,14 @@ public class HashEquiJoin extends Operator {
         super.close();
         tuple1 = null;
         tuple2 = null;
+        listIt = null;
+        map.clear();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
-        this.close();
-        this.open();
+        child1.rewind();
+        child2.rewind();
     }
 
     transient Iterator<Tuple> listIt = null;
@@ -101,15 +107,60 @@ public class HashEquiJoin extends Operator {
      * <p>
      * For example, if one tuple is {1,2,3} and the other tuple is {1,5,6},
      * joined on equality of the first column, then this returns {1,2,3,1,5,6}.
-     * 
+     *
      * @return The next matching tuple.
      * @see JoinPredicate#filter
      */
+
+    private boolean scanChild() throws DbException, TransactionAbortedException{
+        int count = 0;
+        map.clear();
+        while(child2.hasNext()){
+            tuple2 = child2.next();
+            ArrayList<Tuple> list;
+            if(map.get(tuple2.getField(p.getField1()))!=null){
+                list = map.get(tuple2.getField(p.getField1()));
+            }
+            else{
+                list = new ArrayList<>();
+                map.put(tuple2.getField(p.getField1()),list);
+            }
+            list.add(tuple2);
+            count++;
+        }
+        return count > 0;
+    }
+    public Tuple merge(Tuple t1, Tuple t2){
+        Tuple mergeRes = new Tuple(tupleDesc);
+        for(int i = 0; i < child1.getTupleDesc().numFields(); ++i){
+            mergeRes.setField(i, t1.getField(i));
+            //System.out.println(i);
+        }
+        for (int i = 0; i < child2.getTupleDesc().numFields(); ++i){
+            mergeRes.setField(i+ child1.getTupleDesc().numFields(), t2.getField(i));
+            //System.out.println(i);
+        }
+        return mergeRes;
+    }
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
         // some code goes here
-        //TODO: Hash join
-        //copy code from Join.java could also pass the test
+
+        if (listIt != null && listIt.hasNext()) {
+            tuple2 = listIt.next();
+            return merge(tuple1, tuple2);
+        }
+        while (child1.hasNext()) {
+
+            tuple1 = child1.next();
+            //System.out.println(tuple2.getField(p.getField2()));
+            if(map.get(tuple1.getField(p.getField1())) == null) continue;
+            ArrayList<Tuple> list = map.get(tuple1.getField(p.getField1()));
+
+            listIt = list.iterator();
+            return fetchNext();
+        }
         return null;
+        //copy code from Join.java could also pass the test
     }
 
     @Override
@@ -127,5 +178,5 @@ public class HashEquiJoin extends Operator {
         child1= children[0];
         child2 = children[1];
     }
-    
+
 }
