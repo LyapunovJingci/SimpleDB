@@ -22,8 +22,8 @@ Implement the page replacement procedure in the buffer and a B+ tree index for e
 Write a set of operators for SimpleDB to implement table modifications (e.g., insert and delete records), selections, joins, and aggregates.
 1. Implement Filter & Join
 2. Aggregates
-3. HeapFile Mutability
-4. Insertion & Deletion
+3. HeapFile Mutability    :heavy_check_mark:
+4. Insertion & Deletion    :heavy_check_mark:
 
 ## ✍️ Collaborators ##
 - [@CaptainDra](https://github.com/CaptainDra)
