@@ -1,7 +1,6 @@
 package simpledb;
 
 import java.io.*;
-import java.security.Permission;
 import java.util.*;
 
 /**
