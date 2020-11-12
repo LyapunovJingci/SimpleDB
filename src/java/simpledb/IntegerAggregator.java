@@ -51,25 +51,32 @@ public class IntegerAggregator implements Aggregator {
      */
     public void mergeTupleIntoGroup(Tuple tup) {
         // some code goes here
-        Field key = tup.getField(this.gbfield);
 
-        int value = ((IntField) (tup.getField(this.aggregateField))).getValue();
+        Field key;
+        if (this.gbfield == Aggregator.NO_GROUPING) {
+            key = NO_GROUPING;
+        } else {
+            key = tup.getField(this.gbfield);
+        }
 
-        if (tup.getTupleDesc().getFieldType(gbfield).equals(groupByFieldType)) {
+//        System.out.println(gbfield);
+        if (this.gbfield == Aggregator.NO_GROUPING || tup.getTupleDesc().getFieldType(gbfield) == (groupByFieldType)) {
+            int value = ((IntField) (tup.getField(this.aggregateField))).getValue();
             if (!values.containsKey(key)) {
-                ArrayList<Integer> pair = new ArrayList<>();
+                ArrayList<Integer> pair = new ArrayList<>(2);
                 pair.add(value);
                 pair.add(1);
                 values.put(key, pair);
             } else {
                 ArrayList<Integer> pair = values.get(key);
-                ArrayList<Integer> newPair = new ArrayList<>();
+                ArrayList<Integer> newPair = new ArrayList<>(2);
                 int mergedValue = processMerge(pair.get(0), value, this.operator);
                 newPair.add(mergedValue);
                 newPair.add(pair.get(1) + 1);
                 values.replace(key, newPair);
             }
         }
+
     }
 
     private int processMerge(int a, int b, Op op) {
@@ -101,7 +108,6 @@ public class IntegerAggregator implements Aggregator {
         // some code goes here
 
         // a single (aggregateVal) if no grouping
-        // This is weird, in the comment, this part should be necessary, but it would not be tested
         if (this.gbfield == Aggregator.NO_GROUPING) {
             TupleDesc tupleDesc = new TupleDesc(new Type[] { Type.INT_TYPE });
             ArrayList<Tuple> tuples = new ArrayList<>();
@@ -120,7 +126,7 @@ public class IntegerAggregator implements Aggregator {
         }
 
         // pair (groupVal, aggregateVal) if using group
-        ArrayList<Tuple> tuples = new ArrayList<Tuple>();
+        ArrayList<Tuple> tuples = new ArrayList<>();
         TupleDesc tupleDesc = new TupleDesc(new Type[] { this.groupByFieldType, Type.INT_TYPE });
         for (Field key : this.values.keySet()) {
             Tuple t = new Tuple(tupleDesc);

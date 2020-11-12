@@ -100,8 +100,12 @@ public class Aggregate extends Operator {
 	    // some code goes here
         child.open();
         super.open();
-
-        Type gbFieldType = child.getTupleDesc().getFieldType(gfield);
+        Type gbFieldType;
+        if (gfield != Aggregator.NO_GROUPING) {
+            gbFieldType = child.getTupleDesc().getFieldType(gfield);
+        } else {
+            gbFieldType = null;
+        }
 
         Aggregator aggregator;
         if (child.getTupleDesc().getFieldType(afield) == Type.INT_TYPE) {
@@ -113,7 +117,7 @@ public class Aggregate extends Operator {
         while (child.hasNext()) {
             aggregator.mergeTupleIntoGroup(child.next());
         }
-        // compute since
+
         iterator = aggregator.iterator();
         iterator.open();
     }
