@@ -346,7 +346,6 @@ public class HeapPage implements Page {
     private void markSlotUsed(int i, boolean value) {
         // some code goes here
         // not necessary for lab1
-        // 我看了一晚上总觉得上周写的不对。。。不确定
         int Byte = i / 8;
         int Bit = i % 8;
         if(value == true){

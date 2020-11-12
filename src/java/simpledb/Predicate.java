@@ -112,7 +112,6 @@ public class Predicate implements Serializable {
      */
     public String toString() {
         // some code goes here
-        //??这是要干啥
         StringBuffer buffer = new StringBuffer();
         buffer.append("f = ").append(field);
         buffer.append(" op = ").append(op.toString());

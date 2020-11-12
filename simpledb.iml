@@ -27,5 +27,6 @@
     </orderEntry>
     <orderEntry type="library" name="zql" level="application" />
     <orderEntry type="library" name="jline-0.9.94" level="application" />
+    <orderEntry type="library" name="lib1" level="application" />
   </component>
 </module>
