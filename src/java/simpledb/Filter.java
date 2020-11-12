@@ -77,7 +77,6 @@ public class Filter extends Operator {
     @Override
     public DbIterator[] getChildren() {
         // some code goes here
-        // not sure
         DbIterator[] children = new DbIterator[1];
         children[0] = child;
         return children;
