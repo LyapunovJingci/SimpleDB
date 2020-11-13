@@ -59,7 +59,6 @@ public class IntegerAggregator implements Aggregator {
             key = tup.getField(this.gbfield);
         }
 
-//        System.out.println(gbfield);
         if (this.gbfield == Aggregator.NO_GROUPING || tup.getTupleDesc().getFieldType(gbfield) == (groupByFieldType)) {
             int value = ((IntField) (tup.getField(this.aggregateField))).getValue();
             if (!values.containsKey(key)) {
