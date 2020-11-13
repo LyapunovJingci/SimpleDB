@@ -73,13 +73,6 @@ public class Join extends Operator {
         super.open();
         child1.open();
         child2.open();
-        /*
-        if (child1.hasNext()) {
-            tuple1 = child1.next();
-        }
-        if (child2.hasNext()) {
-            tuple2 = child2.next();
-        }*/
     }
 
     public void close() {
@@ -141,30 +134,6 @@ public class Join extends Operator {
                 child2.rewind();
             }
             else break;
-            /*
-            if (child1.hasNext() && child2.hasNext()) {
-                tuple1 = child1.next();
-                tuple2 = child2.next();
-            } else if (child1.hasNext()) {
-                tuple1 = child1.next();
-                child2.rewind();
-                if (child2.hasNext()) {
-                    tuple2 = child2.next();
-                }
-            } else if (child2.hasNext()) {
-                tuple2 = child2.next();
-                child1.rewind();
-                if (child1.hasNext()) {
-                    tuple1 = child1.next();
-                }
-            } else {
-                tuple1 = null;
-                tuple2 = null;
-            }
-             */
-
-
-
         }
         return null;
     }

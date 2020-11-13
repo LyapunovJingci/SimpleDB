@@ -112,24 +112,6 @@ public class HashEquiJoin extends Operator {
      * @see JoinPredicate#filter
      */
 
-    private boolean scanChild() throws DbException, TransactionAbortedException{
-        int count = 0;
-        map.clear();
-        while(child2.hasNext()){
-            tuple2 = child2.next();
-            ArrayList<Tuple> list;
-            if(map.get(tuple2.getField(p.getField1()))!=null){
-                list = map.get(tuple2.getField(p.getField1()));
-            }
-            else{
-                list = new ArrayList<>();
-                map.put(tuple2.getField(p.getField1()),list);
-            }
-            list.add(tuple2);
-            count++;
-        }
-        return count > 0;
-    }
     public Tuple merge(Tuple t1, Tuple t2){
         Tuple mergeRes = new Tuple(tupleDesc);
         for(int i = 0; i < child1.getTupleDesc().numFields(); ++i){
