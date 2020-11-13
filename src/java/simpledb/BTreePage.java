@@ -1,6 +1,5 @@
 package simpledb;
 
-import java.util.*;
 import java.io.*;
 
 import simpledb.Predicate.Op;

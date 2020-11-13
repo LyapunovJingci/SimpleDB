@@ -73,6 +73,7 @@ public class Join extends Operator {
         super.open();
         child1.open();
         child2.open();
+
     }
 
     public void close() {
@@ -134,6 +135,7 @@ public class Join extends Operator {
                 child2.rewind();
             }
             else break;
+
         }
         return null;
     }

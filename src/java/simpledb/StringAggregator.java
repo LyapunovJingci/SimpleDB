@@ -82,7 +82,7 @@ public class StringAggregator implements Aggregator {
             list.add(t);
         }
         return new TupleIterator(tupleDesc,list);
-        //throw new UnsupportedOperationException("please implement me for lab3");
+
     }
 
 }
