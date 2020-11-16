@@ -25,6 +25,13 @@ Write a set of operators for SimpleDB to implement table modifications (e.g., in
 3. HeapFile Mutability    :heavy_check_mark:
 4. Implement Insertion & Deletion    :heavy_check_mark:
 
+### Part 4 ###
+Implement a query optimizer on top of SimpleDB.
+1. Record table statistics for selectivity estimation
+2. Table stats
+3. Implement methods for estimating the selectivity and cost of a join
+4. Join Ordering
+
 ## ✍️ Collaborators ##
 - [@CaptainDra](https://github.com/CaptainDra)
 - [@LyapunovJingci](https://github.com/LyapunovJingci)
