@@ -27,7 +27,7 @@ Write a set of operators for SimpleDB to implement table modifications (e.g., in
 
 ### Part 4 ###
 Implement a query optimizer on top of SimpleDB.
-1. Record table statistics for selectivity estimation
+1. Record table statistics for selectivity estimation    :heavy_check_mark:
 2. Table stats
 3. Implement methods for estimating the selectivity and cost of a join
 4. Join Ordering
