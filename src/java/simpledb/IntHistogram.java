@@ -118,12 +118,12 @@ public class IntHistogram {
                 double selectivityOfGreaterThan;
                 if (bucketIndex == buckets - 1) {
                     // value at last bucket
-                    selectivityOfGreaterThan = calculateSelectivityForRight(bucketIndex, v);
+                    selectivityOfGreaterThan = getSelectivityForRight(bucketIndex, v);
                 } else {
-                    selectivityOfGreaterThan = calculateSelectivityForRight(bucketIndex, v);
+                    selectivityOfGreaterThan = getSelectivityForRight(bucketIndex, v);
                     int i = bucketIndex + 1;
                     while (i < buckets) {
-                        selectivityOfGreaterThan += calculateSelevtivityForFullHistoBar(i);
+                        selectivityOfGreaterThan += getSelectivityForFull(i);
                         i++;
                     }
                 }
@@ -139,12 +139,12 @@ public class IntHistogram {
                 double selectivityOfLessThan = 0;
                 if (bucketIndex == 0) {
                     // value at last bucket
-                    selectivityOfLessThan = calculateSelectivityForLeft(bucketIndex, v);
+                    selectivityOfLessThan = getSelectivityForLeft(bucketIndex, v);
                 } else {
-                    selectivityOfLessThan = calculateSelectivityForLeft(bucketIndex, v);
+                    selectivityOfLessThan = getSelectivityForLeft(bucketIndex, v);
                     int i = bucketIndex - 1;
                     while (i >= 0) {
-                        selectivityOfLessThan += calculateSelevtivityForFullHistoBar(i);
+                        selectivityOfLessThan += getSelectivityForFull(i);
                         i--;
                     }
                 }
@@ -159,12 +159,12 @@ public class IntHistogram {
         }
         return 0;
     }
-    private double calculateSelevtivityForFullHistoBar(int bucketIndex) {
+    private double getSelectivityForFull(int bucketIndex) {
         double b_f = (double) histo[bucketIndex] / count;
         double b_part = 1;
         return b_f * b_part;
     }
-    private double calculateSelectivityForRight(int bucketIndex, int v) {
+    private double getSelectivityForRight(int bucketIndex, int v) {
         int b_right = (bucketIndex + 1) * bucketSize + min - 1;
         double b_f = (double) histo[bucketIndex] / count;
         double b_part = (double) (b_right - v) / bucketSize;
@@ -173,7 +173,7 @@ public class IntHistogram {
         }
         return b_f * b_part;
     }
-    private double calculateSelectivityForLeft(int bucketIndex, int v) {
+    private double getSelectivityForLeft(int bucketIndex, int v) {
         int b_left = bucketIndex * bucketSize + min;
         double b_f = (double) histo[bucketIndex] / count;
         double b_part = (double) (v - b_left) / bucketSize;
