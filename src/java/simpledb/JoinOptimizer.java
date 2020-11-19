@@ -230,8 +230,30 @@ public class JoinOptimizer {
         //Not necessary for labs 1--3
 
         // some code goes here
-        //Replace the following
-        return joins;
+        // Replace the following
+        double min = Double.MAX_VALUE;
+        Vector<LogicalJoinNode> res = new Vector<>();
+        PlanCache pc = new PlanCache();
+        Set<LogicalJoinNode> set = null;
+        for(int i = 0; i < joins.size(); i++){
+            Set<Set<LogicalJoinNode>> subSets = enumerateSubsets(joins,i);
+            for ( Set<LogicalJoinNode> subSet : subSets
+                 ) {
+                set = subSet;
+                min = Double.MAX_VALUE;
+                CostCard bestPlan = new CostCard();
+                for(LogicalJoinNode logicalJoinNode : subSet){
+                    CostCard plan = computeCostAndCardOfSubplan(stats,filterSelectivities,logicalJoinNode,subSet,min,pc);
+                    if(plan.cost < min){
+                        min = plan.cost;
+                        bestPlan = plan;
+                    }
+                }
+                pc.addPlan(subSet,bestPlan.cost, bestPlan.card,bestPlan.plan);
+            }
+        }
+        res = pc.getOrder(set);
+        return res;
     }
 
     // ===================== Private Methods =================================
