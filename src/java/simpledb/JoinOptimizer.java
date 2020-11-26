@@ -231,28 +231,43 @@ public class JoinOptimizer {
 
         // some code goes here
         // Replace the following
-        double min = Double.MAX_VALUE;
-        Vector<LogicalJoinNode> res = new Vector<>();
+        /**
+         * 1. j = set of join nodes
+         * 2. for (i in 1...|j|):
+         * 3.     for s in {all length i subsets of j}
+         * 4.       bestPlan = {}
+         * 5.       for s' in {all length i-1 subsets of s}
+         * 6.            subplan = optjoin(s')
+         * 7.            plan = best way to join (s-s') to subplan
+         * 8.            if (cost(plan) < cost(bestPlan))
+         * 9.               bestPlan = plan
+         * 10.      optjoin(s) = bestPlan
+         * 11. return optjoin(j)
+         */
+
+        Set<LogicalJoinNode> set = new HashSet<>();
+        set.addAll(joins);
         PlanCache pc = new PlanCache();
-        Set<LogicalJoinNode> set = null;
-        for(int i = 0; i < joins.size(); i++){
+        Set<Set<LogicalJoinNode>> j = enumerateSubsets(joins,1);
+        for(int i = 1; i <= j.size(); i++){
             Set<Set<LogicalJoinNode>> subSets = enumerateSubsets(joins,i);
-            for ( Set<LogicalJoinNode> subSet : subSets
-                 ) {
-                set = subSet;
-                min = Double.MAX_VALUE;
-                CostCard bestPlan = new CostCard();
-                for(LogicalJoinNode logicalJoinNode : subSet){
-                    CostCard plan = computeCostAndCardOfSubplan(stats,filterSelectivities,logicalJoinNode,subSet,min,pc);
-                    if(plan.cost < min){
+            for ( Set<LogicalJoinNode> s : subSets) {
+                //set = subSet;
+                Integer minInt = Integer.MAX_VALUE;
+                double min = Double.MAX_VALUE;
+                Vector<LogicalJoinNode> bestPlanForNow = null;
+                for(LogicalJoinNode logicalJoinNode : s){
+                    CostCard plan = computeCostAndCardOfSubplan(stats,filterSelectivities,logicalJoinNode,s,Double.MAX_VALUE,pc);
+                    if (plan !=null && plan.cost< min){
+                        bestPlanForNow = plan.plan;
+                        minInt = plan.card;
                         min = plan.cost;
-                        bestPlan = plan;
                     }
                 }
-                pc.addPlan(subSet,bestPlan.cost, bestPlan.card,bestPlan.plan);
+                pc.addPlan(s,min, minInt,bestPlanForNow);
             }
         }
-        res = pc.getOrder(set);
+        Vector<LogicalJoinNode> res = pc.getOrder(set);
         return res;
     }
 
