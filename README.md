@@ -1,6 +1,6 @@
 # SimpleDB
 
-SimpleDB is a basic database system, including heapfiles, basic operators(scan, filter, join, etc.), buffer pool and catalog. It serves as semester programming project for CS 660 (Graduate Introduction to Database System) at Boston University. The code skeleton is provided.
+SimpleDB is a basic database management system, providing functions such as query processing, locking, query optimization and etc.. It serves as semester programming project for CS 660 (Graduate Introduction to Database System) at Boston University. The code skeleton is provided.
 
 ### Part 1 ###
 Implement the core modules required to access stored data on disk.     
